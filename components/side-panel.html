@@ -1,7 +1,29 @@
 <style>
+    #panel {
+        background: #f2f2f2;
+        padding: 1em;
+        border-radius: 10px;
 
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 75px 1fr;
+    }
+
+    button {
+        background: #2da82d;
+        border: none;
+        border-radius: 10px;
+        padding: .5em;
+        color: white;
+        font-weight: bold;
+    }
 </style>
-<div>
+<div id="panel">
     <div class="row">
         <label for="start">Départ</label>
         <input id="start" name="start" type="text"/>
@@ -10,4 +32,5 @@
         <label for="end">Arrivée</label>
         <input id="end" name="end" type="text"/>
     </div>
+    <button>Valider</button>
 </div>

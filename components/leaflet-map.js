@@ -14,15 +14,15 @@ export class LeafletMap extends HTMLDivElement {
         let mapDiv = document.createElement("div");
         mapDiv.style.height = "100%";
         let map = leaflet.map(mapDiv, {
-            maxZoom: 20,
-            minZoom: 6,
             zoomControl: false
-        }).setView([43.6, 7], 13);
+        }).setView([43.6155, 7.0719], 16);
         setTimeout(() => map.invalidateSize(), 500);
         leaflet.control.zoom({
             position: "bottomright"
         }).addTo(map);
         leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            minZoom: 6,
             attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
         }).addTo(map);
 
