@@ -6,11 +6,12 @@ side-panel {
     position: fixed;
     left: 0;
     top: 0;
+    z-index: 2;
 }
 
 leaflet-map {
     height: 100vh;
     display: block;
     position: relative;
-    z-index: -1;
+    z-index: 1;
 }

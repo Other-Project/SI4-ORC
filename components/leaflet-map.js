@@ -1,7 +1,5 @@
 import * as leaflet from "/node_modules/leaflet/dist/leaflet-src.esm.js";
 
-//import * as leaflet from "https://unpkg.com/leaflet/dist/leaflet-src.esm.js";
-
 export class LeafletMap extends HTMLDivElement {
     constructor() {
         super();
@@ -20,18 +18,13 @@ export class LeafletMap extends HTMLDivElement {
             minZoom: 6,
             zoomControl: false
         }).setView([43.6, 7], 13);
-
+        setTimeout(() => map.invalidateSize(), 500);
         leaflet.control.zoom({
             position: "bottomright"
         }).addTo(map);
-
         leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
         }).addTo(map);
-
-        setTimeout(function () {
-            map.invalidateSize();
-        }, 500);
 
         shadow.appendChild(mapDiv);
     }
