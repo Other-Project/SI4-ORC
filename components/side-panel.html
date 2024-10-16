@@ -26,11 +26,15 @@
 <div id="panel">
     <div class="row">
         <label for="start">Départ</label>
-        <input id="start" name="start" type="text"/>
+        <input id="start" name="start" type="text" list="start-suggestions"/>
+        <datalist id="start-suggestions">
+        </datalist>
     </div>
     <div class="row">
         <label for="end">Arrivée</label>
-        <input id="end" name="end" type="text"/>
+        <input id="end" name="end" type="text" list="end-suggestions"/>
+        <datalist id="end-suggestions">
+        </datalist>
     </div>
     <button>Valider</button>
 </div>
