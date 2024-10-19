@@ -1,3 +1,5 @@
+const ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
+
 export class LocationInput extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
     static get observedAttributes() {
@@ -7,7 +9,6 @@ export class LocationInput extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
     attributeChangedCallback(name, oldValue, newValue) {
         this[name] = newValue;
-        console.log(name + ": " + newValue)
         this.#updateComponents();
     }
 
@@ -45,9 +46,30 @@ export class LocationInput extends HTMLElement {
     }
 
     #setupComponents() {
-        this.input.addEventListener("input", async () => {
-            await this.#updateSuggestions();
+        let context = this;
+        this.callTimeout = 0;
+
+        this.input.addEventListener("keydown", async () => {
+            if (this.callTimeout) clearTimeout(this.callTimeout);
+            this.callTimeout = setTimeout(() => context.#updateSuggestions(), 1000);
         });
+    }
+
+    async #getCurrentPosition() {
+        const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        return {
+            long: pos.coords.longitude,
+            lat: pos.coords.latitude,
+        };
+    };
+
+    async #addressCompletionApiUrl(query) {
+        let requestUrl = ADDRESS_API + "?q=" + query;
+        await this.#getCurrentPosition().then(coords => requestUrl += "&lat=" + coords.lat + "&lon=" + coords.long).catch(() => null);
+        return requestUrl;
     }
 
     async #updateSuggestions() {
@@ -55,7 +77,7 @@ export class LocationInput extends HTMLElement {
         const value = this.input.value;
         if (value.length < 3) return; // The api won't respond
 
-        let url = "https://api-adresse.data.gouv.fr/search/?q=" + value;
+        let url = await this.#addressCompletionApiUrl(value);
         let data = await (await fetch(url)).json();
         for (let suggest of data.features) {
             let option = document.createElement('option');
