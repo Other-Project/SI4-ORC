@@ -1,0 +1,53 @@
+.container {
+    display: grid;
+    grid-template-columns: 75px 1fr;
+    align-items: center;
+    justify-items: center;
+}
+
+label {
+    font-size: 1.2em;
+    color: #333;
+}
+
+input {
+    background-color: white;
+    padding: 5px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    min-width: 17.5em;
+}
+
+.input-container {
+    position: relative;
+}
+
+.suggestions {
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    background: white;
+    padding: 1px;
+    margin: 0;
+
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+}
+
+.suggestions > li {
+    padding: 10px 5px;
+    margin: 0;
+    list-style-type: none;
+    border-radius: 5px;
+}
+
+.suggestions > li:hover {
+    background-color: royalblue;
+    color: white;
+}
+
+.suggestions.hide {
+    display: none;
+}

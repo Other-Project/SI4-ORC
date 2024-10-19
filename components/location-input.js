@@ -27,7 +27,7 @@ export class LocationInput extends HTMLElement {
             context.root = templateContent.cloneNode(true);
             context.label = context.root.querySelector("label");
             context.input = context.root.querySelector("input");
-            context.datalist = context.root.querySelector("datalist");
+            context.datalist = context.root.querySelector(".suggestions");
 
             context.#updateComponents();
             context.#setupComponents();
@@ -56,6 +56,11 @@ export class LocationInput extends HTMLElement {
     }
 
     async #getCurrentPosition() {
+        if (!("geolocation" in navigator)) {
+            await Promise.reject("No geolocation service");
+            return;
+        }
+
         const pos = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject);
         });
@@ -72,17 +77,30 @@ export class LocationInput extends HTMLElement {
         return requestUrl;
     }
 
+    #clearSuggestions() {
+        this.datalist.innerHTML = '';
+        this.datalist.classList.add('hide');
+    }
+
+    #selectSuggestion(suggestion) {
+        this.input.value = suggestion.properties.label;
+        [this.input.dataset["long"], this.input.dataset["lat"]] = suggestion.geometry.coordinates;
+        this.#clearSuggestions();
+    }
+
     async #updateSuggestions() {
-        while (this.datalist.firstChild) this.datalist.removeChild(this.datalist.firstChild);
+        this.#clearSuggestions();
         const value = this.input.value;
         if (value.length < 3) return; // The api won't respond
 
         let url = await this.#addressCompletionApiUrl(value);
         let data = await (await fetch(url)).json();
         for (let suggest of data.features) {
-            let option = document.createElement('option');
-            option.value = suggest.properties.label;
+            let option = document.createElement('li');
+            option.innerText = suggest.properties.label;
+            option.onclick = () => this.#selectSuggestion(suggest);
             this.datalist.appendChild(option);
         }
+        this.datalist.classList.remove('hide');
     }
 }

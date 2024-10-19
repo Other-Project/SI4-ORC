@@ -1,15 +1,12 @@
 <!--suppress HtmlFormInputWithoutLabel -->
 <template id="locationInputTemplate">
-    <style>
-        div {
-            display: grid;
-            grid-template-columns: 75px 1fr;
-        }
-    </style>
+    <link rel="stylesheet" href="/components/location-input.css">
 
-    <div>
+    <div class="container">
         <label></label>
-        <input type="text"/>
-        <datalist></datalist>
+        <div class="input-container">
+            <input type="text"/>
+            <ul class="suggestions hide"></ul>
+        </div>
     </div>
 </template>
