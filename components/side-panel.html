@@ -9,11 +9,6 @@
         gap: 1em;
     }
 
-    .row {
-        display: grid;
-        grid-template-columns: 75px 1fr;
-    }
-
     button {
         background: #2da82d;
         border: none;
@@ -24,17 +19,7 @@
     }
 </style>
 <div id="panel">
-    <div class="row">
-        <label for="start">Départ</label>
-        <input id="start" name="start" type="text" list="start-suggestions"/>
-        <datalist id="start-suggestions">
-        </datalist>
-    </div>
-    <div class="row">
-        <label for="end">Arrivée</label>
-        <input id="end" name="end" type="text" list="end-suggestions"/>
-        <datalist id="end-suggestions">
-        </datalist>
-    </div>
+    <location-input name="start" display_name="Départ"></location-input>
+    <location-input name="end" display_name="Arrivée"></location-input>
     <button>Valider</button>
 </div>
