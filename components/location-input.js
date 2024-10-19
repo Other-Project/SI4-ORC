@@ -46,12 +46,20 @@ export class LocationInput extends HTMLElement {
     }
 
     #setupComponents() {
-        let context = this;
-        this.callTimeout = 0;
+        this.lastUpdate = 0;
 
         this.input.addEventListener("keydown", async () => {
-            if (this.callTimeout) clearTimeout(this.callTimeout);
-            this.callTimeout = setTimeout(() => context.#updateSuggestions(), 1000);
+            let oldText = this.input.value;
+            let time = +new Date();
+
+            setTimeout(async () => {
+                if (oldText === this.seachText || oldText !== this.input.value && time - this.lastUpdate < 500) return;
+                let data = await this.#getNewSuggestions(oldText);
+                if (time < this.lastUpdate) return; // The request "expired" (a new one was received in-between)
+                this.lastUpdate = time;
+                this.seachText = oldText;
+                await this.#updateSuggestions(data);
+            }, 500);
         });
     }
 
@@ -88,14 +96,16 @@ export class LocationInput extends HTMLElement {
         this.#clearSuggestions();
     }
 
-    async #updateSuggestions() {
-        this.#clearSuggestions();
-        const value = this.input.value;
-        if (value.length < 3) return; // The api won't respond
+    async #getNewSuggestions(searchValue) {
+        if (searchValue.length < 3) return []; // The api won't respond
+        let url = await this.#addressCompletionApiUrl(searchValue);
+        return (await (await fetch(url)).json()).features;
+    }
 
-        let url = await this.#addressCompletionApiUrl(value);
-        let data = await (await fetch(url)).json();
-        for (let suggest of data.features) {
+    async #updateSuggestions(data) {
+        this.#clearSuggestions();
+
+        for (let suggest of data) {
             let option = document.createElement('li');
             option.innerText = suggest.properties.label;
             option.onclick = () => this.#selectSuggestion(suggest);
