@@ -97,9 +97,25 @@ export class LocationInput extends HTMLElement {
     }
 
     async #getNewSuggestions(searchValue) {
-        if (searchValue.length < 3) return []; // The api won't respond
-        let url = await this.#addressCompletionApiUrl(searchValue);
-        return (await (await fetch(url)).json()).features;
+        let result = [];
+
+        if ("Ma position".match(searchValue)) {
+            let coords = await this.#getCurrentPosition();
+            if (coords) result.push({
+                properties: {
+                    label: "Ma position"
+                },
+                geometry: {
+                    coordinates: [coords.long, coords.lat]
+                }
+            });
+        }
+
+        if (searchValue.length >= 3) { // The api won't respond if len < 3
+            let url = await this.#addressCompletionApiUrl(searchValue);
+            result.push(...((await (await fetch(url)).json()).features));
+        }
+        return result;
     }
 
     async #updateSuggestions(data) {
