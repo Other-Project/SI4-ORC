@@ -15,7 +15,7 @@ export class LocationInput extends HTMLElement {
     constructor() {
         super();
 
-        let shadowRoot = this.attachShadow({mode: "open"});
+        let shadowRoot = this.attachShadow({ mode: "open" });
 
         let context = this;
         fetch("/components/location-input.html").then(async function (response) {
@@ -75,7 +75,7 @@ export class LocationInput extends HTMLElement {
 
         return {
             long: pos.coords.longitude,
-            lat: pos.coords.latitude,
+            lat: pos.coords.latitude
         };
     };
 
@@ -86,13 +86,22 @@ export class LocationInput extends HTMLElement {
     }
 
     #clearSuggestions() {
-        this.datalist.innerHTML = '';
-        this.datalist.classList.add('hide');
+        this.datalist.innerHTML = "";
+        this.datalist.classList.add("hide");
     }
 
     #selectSuggestion(suggestion) {
         this.input.value = suggestion.properties.label;
-        [this.input.dataset["long"], this.input.dataset["lat"]] = suggestion.geometry.coordinates;
+        document.dispatchEvent(new CustomEvent("valueChanged", {
+            detail: {
+                fieldName: this["name"],
+                value: {
+                    label: suggestion.properties.label,
+                    coords: suggestion.geometry.coordinates
+                }
+            }
+        }));
+
         this.#clearSuggestions();
     }
 
@@ -113,7 +122,8 @@ export class LocationInput extends HTMLElement {
 
         if (searchValue.length >= 3) { // The api won't respond if len < 3
             let url = await this.#addressCompletionApiUrl(searchValue);
-            result.push(...((await (await fetch(url)).json()).features));
+            let response = await (await fetch(url)).json();
+            result.push(...(response["features"] ?? []));
         }
         return result;
     }
@@ -122,11 +132,11 @@ export class LocationInput extends HTMLElement {
         this.#clearSuggestions();
 
         for (let suggest of data) {
-            let option = document.createElement('li');
+            let option = document.createElement("li");
             option.innerText = suggest.properties.label;
             option.onclick = () => this.#selectSuggestion(suggest);
             this.datalist.appendChild(option);
         }
-        this.datalist.classList.remove('hide');
+        this.datalist.classList.remove("hide");
     }
 }

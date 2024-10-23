@@ -18,23 +18,38 @@ export class LeafletMap extends HTMLDivElement {
 
         let mapDiv = document.createElement("div");
         mapDiv.style.height = "100%";
-        let map = L.map(mapDiv, {
+        this.map = L.map(mapDiv, {
             zoomControl: false
         }).setView([43.6155, 7.0719], 16);
-        setTimeout(() => map.invalidateSize(), 500);
+        setTimeout(() => this.map.invalidateSize(), 500);
         L.control.zoom({
             position: "bottomright"
-        }).addTo(map);
+        }).addTo(this.map);
         L.control.locate({
             position: "bottomright"
-        }).addTo(map);
+        }).addTo(this.map);
 
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             minZoom: 6,
             attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"
-        }).addTo(map);
+        }).addTo(this.map);
 
         shadow.appendChild(mapDiv);
+
+
+        document.addEventListener("locationValidated", ev => {
+            this.start = ev.detail.start;
+            this.end = ev.detail.end;
+            this.#updateMap();
+        });
+    }
+
+    #updateMap() {
+        if (!this.start || !this.end) return;
+
+        console.log(this.start.coords);
+        L.marker([this.start.coords]).addTo(this.map);
+        L.marker([this.end.coords]).addTo(this.map);
     }
 }
