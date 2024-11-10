@@ -1,0 +1,30 @@
+<style>
+    .instruction {
+        display: grid;
+        grid-template: auto 1fr / 75px 1fr;
+        gap: 10px;
+        height: 75px;
+        padding: 15px;
+    }
+
+    /*noinspection CssUnusedSymbol*/
+    .instruction.active {
+        background: #0001;
+    }
+
+    .instruction-icon {
+        grid-row: 1 / span 2;
+        max-width: 100%;
+        max-height: 100%;
+    }
+
+    .instruction-distance {
+        margin: 0;
+    }
+</style>
+
+<div class="instruction">
+    <img src="" class="instruction-icon" alt="instruction icon"/>
+    <strong class="instruction-text"></strong>
+    <p class="instruction-distance"></p>
+</div>

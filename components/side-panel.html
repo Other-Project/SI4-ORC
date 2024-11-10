@@ -17,9 +17,26 @@
         color: white;
         font-weight: bold;
     }
+
+    #instructions {
+        overflow-y: auto;
+    }
+
+    #instructions:empty {
+        display: none;
+    }
+
+    #instructions > * {
+        display: block;
+    }
+
+    #instructions > :not(:last-child) {
+        border-bottom: 1px solid lightgray;
+    }
 </style>
 <div id="panel">
     <location-input name="start" display_name="Départ"></location-input>
     <location-input name="end" display_name="Arrivée"></location-input>
     <button id="sendBtn">Valider</button>
+    <div id="instructions"></div>
 </div>
