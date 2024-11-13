@@ -2,6 +2,22 @@ import "/node_modules/leaflet/dist/leaflet-src.js";
 import "/node_modules/leaflet.locatecontrol/dist/L.Control.Locate.min.js";
 
 const ORS_TOKEN = "5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c";
+const ORS_STEP_TYPES = [
+    "Left",
+    "Right",
+    "Sharp left",
+    "Sharp right",
+    "Slight left",
+    "Slight right",
+    "Straight",
+    "Enter roundabout",
+    "Exit roundabout",
+    "U-turn",
+    "Goal",
+    "Depart",
+    "Keep left",
+    "Keep right"
+];
 
 const LeafIcon = L.Icon.extend({
     options: {
