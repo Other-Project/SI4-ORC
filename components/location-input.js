@@ -97,7 +97,7 @@ export class LocationInput extends HTMLElement {
                 fieldName: this["name"],
                 value: {
                     label: suggestion.properties.label,
-                    coords: suggestion.geometry.coordinates
+                    coords: suggestion.geometry.coordinates.reverse()
                 }
             }
         }));
