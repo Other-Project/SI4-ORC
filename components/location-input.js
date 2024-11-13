@@ -1,28 +1,18 @@
 const FRENCH_ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
 const ORS_ADDRESS_API = "https://api.openrouteservice.org/geocode/autocomplete?api_key=5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c";
 
-let cachedGeoPos;
-let cachedGeoPosTime;
-
-await getCurrentPosition();
-
-async function getCurrentPosition() {
-    if (!("geolocation" in navigator)) {
-        await Promise.reject("No geolocation service");
-        return;
-    }
-
-    if (cachedGeoPos && Date() - cachedGeoPosTime < 60000) return cachedGeoPos;
-
-    const pos = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-    cachedGeoPosTime = +Date();
-    return cachedGeoPos = {
-        long: pos.coords.longitude,
-        lat: pos.coords.latitude
-    };
-}
+let currentPosition;
+if ("geolocation" in navigator)
+    setInterval(async () => {
+        const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        currentPosition = {
+            long: pos.coords.longitude,
+            lat: pos.coords.latitude
+        };
+    }, 30000);
+else console.warn("No geolocation service");
 
 export class LocationInput extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
@@ -90,11 +80,11 @@ export class LocationInput extends HTMLElement {
     async #addressCompletionApiUrl(query, frenchApi = false) {
         if (frenchApi) {
             let requestUrl = FRENCH_ADDRESS_API + "?q=" + query;
-            await getCurrentPosition().then(coords => requestUrl += "&lat=" + coords.lat + "&lon=" + coords.long).catch(() => null);
+            if (currentPosition) requestUrl += "&lat=" + currentPosition.lat + "&lon=" + currentPosition.long;
             return requestUrl;
         } else {
             let requestUrl = ORS_ADDRESS_API + "&layers=address,neighbourhood,locality,borough&text=" + query;
-            await getCurrentPosition().then(coords => requestUrl += "&focus.point.lon=" + coords.long + "&focus.point.lat=" + coords.lat).catch(() => null);
+            if (currentPosition) requestUrl += "&focus.point.lon=" + currentPosition.long + "&focus.point.lat=" + currentPosition.lat;
             return requestUrl;
         }
     }
@@ -123,13 +113,12 @@ export class LocationInput extends HTMLElement {
         let result = [];
 
         if ("Ma position".match(searchValue)) {
-            let coords = await getCurrentPosition();
-            if (coords) result.push({
+            if (currentPosition) result.push({
                 properties: {
                     label: "Ma position"
                 },
                 geometry: {
-                    coordinates: [coords.long, coords.lat]
+                    coordinates: [currentPosition.long, currentPosition.lat]
                 }
             });
         }
