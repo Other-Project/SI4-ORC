@@ -1,4 +1,18 @@
-const ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
+const FRENCH_ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
+const ORS_ADDRESS_API = "https://api.openrouteservice.org/geocode/autocomplete?api_key=5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c";
+
+let currentPosition;
+if ("geolocation" in navigator)
+    setInterval(async () => {
+        const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        currentPosition = {
+            long: pos.coords.longitude,
+            lat: pos.coords.latitude
+        };
+    }, 30000);
+else console.warn("No geolocation service");
 
 export class LocationInput extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
@@ -15,7 +29,7 @@ export class LocationInput extends HTMLElement {
     constructor() {
         super();
 
-        let shadowRoot = this.attachShadow({ mode: "open" });
+        let shadowRoot = this.attachShadow({mode: "open"});
 
         let context = this;
         fetch("/components/location-input.html").then(async function (response) {
@@ -63,26 +77,16 @@ export class LocationInput extends HTMLElement {
         });
     }
 
-    async #getCurrentPosition() {
-        if (!("geolocation" in navigator)) {
-            await Promise.reject("No geolocation service");
-            return;
+    async #addressCompletionApiUrl(query, frenchApi = false) {
+        if (frenchApi) {
+            let requestUrl = FRENCH_ADDRESS_API + "?q=" + query;
+            if (currentPosition) requestUrl += "&lat=" + currentPosition.lat + "&lon=" + currentPosition.long;
+            return requestUrl;
+        } else {
+            let requestUrl = ORS_ADDRESS_API + "&layers=address,neighbourhood,locality,borough&text=" + query;
+            if (currentPosition) requestUrl += "&focus.point.lon=" + currentPosition.long + "&focus.point.lat=" + currentPosition.lat;
+            return requestUrl;
         }
-
-        const pos = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-
-        return {
-            long: pos.coords.longitude,
-            lat: pos.coords.latitude
-        };
-    };
-
-    async #addressCompletionApiUrl(query) {
-        let requestUrl = ADDRESS_API + "?q=" + query;
-        await this.#getCurrentPosition().then(coords => requestUrl += "&lat=" + coords.lat + "&lon=" + coords.long).catch(() => null);
-        return requestUrl;
     }
 
     #clearSuggestions() {
@@ -97,7 +101,7 @@ export class LocationInput extends HTMLElement {
                 fieldName: this["name"],
                 value: {
                     label: suggestion.properties.label,
-                    coords: suggestion.geometry.coordinates.reverse()
+                    coords: suggestion.geometry.coordinates
                 }
             }
         }));
@@ -109,13 +113,12 @@ export class LocationInput extends HTMLElement {
         let result = [];
 
         if ("Ma position".match(searchValue)) {
-            let coords = await this.#getCurrentPosition();
-            if (coords) result.push({
+            if (currentPosition) result.push({
                 properties: {
                     label: "Ma position"
                 },
                 geometry: {
-                    coordinates: [coords.long, coords.lat]
+                    coordinates: [currentPosition.long, currentPosition.lat]
                 }
             });
         }
