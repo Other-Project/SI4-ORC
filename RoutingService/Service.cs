@@ -1,6 +1,5 @@
-using System.Text.Json;
-using GeoCoordinatePortable;
 using RoutingService.JCDecaux;
+using RoutingService.OpenRouteService;
 
 namespace RoutingService;
 
@@ -9,9 +8,10 @@ public class Service : IService
 {
     private static readonly HttpClient Client = new();
     private readonly JcDeacauxClient jcDeacauxClient = new(Client);
+    private readonly OrsClient orsClient = new(Client);
 
 
-    public async Task<string?> CalculateRoute(string from, string to)
+    public async Task<RouteSegment[]?> CalculateRoute(string from, string to)
     {
         try
         {
@@ -19,14 +19,16 @@ public class Service : IService
             var contract = jcDeacauxClient.Contracts[11];
             await jcDeacauxClient.RetrieveStationsAsync(contract.Name);
             var station = jcDeacauxClient.Stations[0];
-            var nearestStation = jcDeacauxClient.FindNearestStation(station);
+            var nearestStation = jcDeacauxClient.FindNearestStation(station.Position);
             if (nearestStation is null) return null;
-            return station.Name + " -> " + nearestStation.Name;
+            var route = await orsClient.GetRoute(station.Position, nearestStation.Position);
+
+            return route;
         }
         catch (Exception e)
         {
             Console.Error.WriteLine(e);
-            return e.Message;
+            return null;
         }
     }
 }

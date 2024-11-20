@@ -1,5 +1,5 @@
 using System.Text.Json;
-using GeoCoordinatePortable;
+using GeoCoordinate = GeoCoordinatePortable.GeoCoordinate;
 
 namespace RoutingService.JCDecaux;
 
@@ -25,11 +25,5 @@ public class JcDeacauxClient(HttpClient client)
         ) ?? [];
     }
 
-    public Station? FindNearestStation(Station station)
-    {
-        GeoCoordinate stationPos = station.Position;
-        return Stations?
-            .Where(s => s.Number != station.Number)
-            .MinBy(s => stationPos.GetDistanceTo(s.Position));
-    }
+    public Station? FindNearestStation(GeoCoordinate coordinate) => Stations?.MinBy(s => coordinate.GetDistanceTo(s.Position));
 }

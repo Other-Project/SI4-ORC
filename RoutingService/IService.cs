@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CoreWCF.Web;
+using RoutingService.OpenRouteService;
 
 namespace RoutingService;
 
@@ -13,5 +14,5 @@ public interface IService
         BodyStyle = WebMessageBodyStyle.Wrapped,
         RequestFormat = WebMessageFormat.Json,
         ResponseFormat = WebMessageFormat.Json)]
-    Task<string?> CalculateRoute(string from, string to);
+    Task<RouteSegment[]?> CalculateRoute(string from, string to);
 }
