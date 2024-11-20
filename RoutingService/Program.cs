@@ -12,8 +12,8 @@ builder.Services.AddServiceModelMetadata();
 builder.Services.AddServiceModelWebServices();
 builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
 
-JcDeacauxClient.ApiUrl = builder.Configuration.GetValue<string>("JCDecaux:ApiUrl") ?? JcDeacauxClient.ApiUrl;
-JcDeacauxClient.ApiKey = builder.Configuration.GetValue<string>("JCDecaux:ApiKey");
+JcDecauxClient.ApiUrl = builder.Configuration.GetValue<string>("JCDecaux:ApiUrl") ?? JcDecauxClient.ApiUrl;
+JcDecauxClient.ApiKey = builder.Configuration.GetValue<string>("JCDecaux:ApiKey");
 OrsClient.ApiUrl = builder.Configuration.GetValue<string>("OpenRouteService:ApiUrl") ?? OrsClient.ApiUrl;
 OrsClient.ApiKey = builder.Configuration.GetValue<string>("OpenRouteService:ApiKey");
 

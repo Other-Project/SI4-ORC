@@ -7,7 +7,7 @@ namespace RoutingService;
 public class Service : IService
 {
     private static readonly HttpClient Client = new();
-    private readonly JcDeacauxClient jcDeacauxClient = new(Client);
+    private readonly JcDecauxClient jcDecauxClient = new(Client);
     private readonly OrsClient orsClient = new(Client);
 
 
@@ -15,11 +15,11 @@ public class Service : IService
     {
         try
         {
-            await jcDeacauxClient.RetrieveContractsAsync();
-            var contract = jcDeacauxClient.Contracts[11];
-            await jcDeacauxClient.RetrieveStationsAsync(contract.Name);
-            var station = jcDeacauxClient.Stations[0];
-            var nearestStation = jcDeacauxClient.FindNearestStation(station.Position);
+            await jcDecauxClient.RetrieveContractsAsync();
+            var contract = jcDecauxClient.Contracts[11];
+            await jcDecauxClient.RetrieveStationsAsync(contract.Name);
+            var station = jcDecauxClient.Stations[0];
+            var nearestStation = jcDecauxClient.FindNearestStation(station.Position);
             if (nearestStation is null) return null;
             var route = await orsClient.GetRoute(station.Position, nearestStation.Position);
 

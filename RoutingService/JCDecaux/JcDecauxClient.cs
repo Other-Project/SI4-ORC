@@ -3,7 +3,7 @@ using GeoCoordinate = GeoCoordinatePortable.GeoCoordinate;
 
 namespace RoutingService.JCDecaux;
 
-public class JcDeacauxClient(HttpClient client)
+public class JcDecauxClient(HttpClient client)
 {
     public static string ApiUrl { get; set; } = "https://api.jcdecaux.com/vls/v3";
     public static string? ApiKey { get; set; }
