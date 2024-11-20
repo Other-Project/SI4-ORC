@@ -9,10 +9,10 @@ namespace RoutingService;
 public interface IService
 {
     [OperationContract]
-    [WebInvoke(UriTemplate = "route?from={from}&to={to}",
+    [WebInvoke(UriTemplate = "route?startLon={startLon}&startLat={startLat}&endLon={endLon}&endLat={endLat}",
         Method = "GET",
         BodyStyle = WebMessageBodyStyle.Wrapped,
         RequestFormat = WebMessageFormat.Json,
         ResponseFormat = WebMessageFormat.Json)]
-    Task<RouteSegment[]?> CalculateRoute(string from, string to);
+    Task<IEnumerable<RouteSegment>?> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
 }

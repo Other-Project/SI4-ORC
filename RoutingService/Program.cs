@@ -7,6 +7,7 @@ builder.WebHost.ConfigureKestrel((context, options) =>
     options.AllowSynchronousIO = true; // Note only needed now if using Streamed transfer mode, can probably remove
 });
 
+builder.Services.AddCors();
 builder.Services.AddServiceModelServices();
 builder.Services.AddServiceModelMetadata();
 builder.Services.AddServiceModelWebServices();
@@ -18,7 +19,10 @@ OrsClient.ApiUrl = builder.Configuration.GetValue<string>("OpenRouteService:ApiU
 OrsClient.ApiKey = builder.Configuration.GetValue<string>("OpenRouteService:ApiKey");
 
 var app = builder.Build();
-
+app.UseCors(policyBuilder => policyBuilder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 app.UseServiceModel(serviceBuilder =>
 {
     serviceBuilder.AddService<Service>();

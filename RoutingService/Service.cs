@@ -1,3 +1,4 @@
+using GeoCoordinatePortable;
 using RoutingService.JCDecaux;
 using RoutingService.OpenRouteService;
 
@@ -11,18 +12,23 @@ public class Service : IService
     private readonly OrsClient orsClient = new(Client);
 
 
-    public async Task<RouteSegment[]?> CalculateRoute(string from, string to)
+    public async Task<IEnumerable<RouteSegment>?> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
     {
         try
         {
-            await jcDecauxClient.RetrieveContractsAsync();
-            var contract = jcDecauxClient.Contracts[11];
-            await jcDecauxClient.RetrieveStationsAsync(contract.Name);
-            var station = jcDecauxClient.Stations[0];
-            var nearestStation = jcDecauxClient.FindNearestStation(station.Position);
-            if (nearestStation is null) return null;
-            var route = await orsClient.GetRoute(station.Position, nearestStation.Position);
+            var start = new GeoCoordinate(startLat, startLon);
+            var end = new GeoCoordinate(endLat, endLon);
 
+            await jcDecauxClient.RetrieveContractsAsync();
+            await jcDecauxClient.RetrieveStationsAsync();
+            var startStation = jcDecauxClient.FindNearestStation(start);
+            if (startStation is null) return null;
+            var endStation = jcDecauxClient.FindNearestStation(end);
+            if (endStation is null) return null;
+
+            var route = await orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking);
+            route.AddRange(await orsClient.GetRoute(startStation.Position, endStation.Position));
+            route.AddRange(await orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking));
             return route;
         }
         catch (Exception e)

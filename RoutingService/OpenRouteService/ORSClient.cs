@@ -12,7 +12,7 @@ public class OrsClient(HttpClient client)
     public static string? ApiKey { get; set; }
 
 
-    public async Task<RouteSegment[]?> GetRoute(GeoCoordinate start, GeoCoordinate end, Vehicle vehicle = Vehicle.CyclingRegular)
+    public async Task<List<RouteSegment>> GetRoute(GeoCoordinate start, GeoCoordinate end, Vehicle vehicle = Vehicle.CyclingRegular)
     {
         if (ApiKey == null) throw new InvalidOperationException("API Key not set");
 
@@ -58,7 +58,7 @@ public class OrsClient(HttpClient client)
             Distance = step.Distance,
             Duration = step.Duration,
             Points = waypoints[new Range(step.Waypoints[0], step.Waypoints[1] + 1)]
-        }).ToArray();
+        }).ToList();
 
         return result;
     }

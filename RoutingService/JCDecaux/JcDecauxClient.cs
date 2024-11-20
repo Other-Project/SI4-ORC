@@ -25,5 +25,10 @@ public class JcDecauxClient(HttpClient client)
         ) ?? [];
     }
 
+    public async Task RetrieveStationsAsync()
+    {
+        Stations = await JsonSerializer.DeserializeAsync<List<Station>>(await client.GetStreamAsync($"{ApiUrl}/stations?apiKey={ApiKey}")) ?? [];
+    }
+
     public Station? FindNearestStation(GeoCoordinate coordinate) => Stations?.MinBy(s => coordinate.GetDistanceTo(s.Position));
 }
