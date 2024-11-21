@@ -14,6 +14,7 @@
         <Using Include="Microsoft.Extensions.DependencyInjection.Extensions"/>
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Apache.NMS.ActiveMQ" Version="2.1.0" />
         <PackageReference Include="CoreWCF.Primitives" Version="1.*"/>
         <PackageReference Include="CoreWCF.Http" Version="1.*"/>
         <PackageReference Include="CoreWCF.WebHttp" Version="1.6.0" />

@@ -14,5 +14,5 @@ public interface IService
         BodyStyle = WebMessageBodyStyle.Wrapped,
         RequestFormat = WebMessageFormat.Json,
         ResponseFormat = WebMessageFormat.Json)]
-    Task<IEnumerable<RouteSegment>?> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
+    Task<string?> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
 }
