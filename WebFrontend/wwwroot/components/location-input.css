@@ -1,6 +1,7 @@
 .container {
     display: grid;
     grid-template-columns: 75px 1fr;
+    gap: 5px;
     align-items: center;
     justify-items: center;
 }
@@ -15,11 +16,12 @@ input {
     padding: 5px;
     border: 1px solid lightgray;
     border-radius: 5px;
-    min-width: 17.5em;
+    width: calc(100% - 12px);
 }
 
 .input-container {
     position: relative;
+    width: 100%;
 }
 
 .suggestions {

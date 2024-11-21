@@ -19,10 +19,7 @@ OrsClient.ApiUrl = builder.Configuration.GetValue<string>("OpenRouteService:ApiU
 OrsClient.ApiKey = builder.Configuration.GetValue<string>("OpenRouteService:ApiKey");
 
 var app = builder.Build();
-app.UseCors(policyBuilder => policyBuilder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+app.UseCors(policyBuilder => policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseServiceModel(serviceBuilder =>
 {
     serviceBuilder.AddService<Service>();
