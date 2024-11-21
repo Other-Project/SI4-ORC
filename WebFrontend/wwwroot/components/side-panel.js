@@ -1,8 +1,25 @@
+import {RoutingService} from "/routingService.js";
+
+const ORS_STEP_TYPES = [
+    "Left",
+    "Right",
+    "Sharp left",
+    "Sharp right",
+    "Slight left",
+    "Slight right",
+    "Straight",
+    "Enter roundabout",
+    "Exit roundabout",
+    "U-turn",
+    "Goal",
+    "Depart",
+    "Keep left",
+    "Keep right"
+];
+
 import {ActiveMQ} from "/components/activemq.js";
 
 export class SidePanel extends HTMLElement {
-
-
     constructor() {
         super();
 
@@ -26,22 +43,23 @@ export class SidePanel extends HTMLElement {
         if (!this.sendBtn) return;
 
         this.sendBtn.addEventListener("click", async () => {
+            let instructions = await new RoutingService().getRoute(this["start"].coords, this["end"].coords);
             let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/topic/chat.general");
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
-                    end: this["end"]
+                    end: this["end"],
+                    instructions: instructions
                 }
             }));
 
-            let instructions = await this.#getInstructions();
             this.instructionsDiv.innerHTML = "";
             for (let instruction of instructions) {
                 let instructionElement = document.createElement("app-instruction");
                 instructionElement.setAttribute("active", (instruction === instructions[0]).toString());
-                instructionElement.setAttribute("label", instruction.label);
-                instructionElement.setAttribute("type", instruction.type);
-                instructionElement.setAttribute("dist", instruction.distance);
+                instructionElement.setAttribute("label", instruction["InstructionText"]);
+                instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
+                instructionElement.setAttribute("dist", instruction["Distance"]);
                 this.instructionsDiv.appendChild(instructionElement);
                 activeMQ.send(instruction.label);
             }
@@ -55,48 +73,6 @@ export class SidePanel extends HTMLElement {
         if (!active) return;
         active.setAttribute("active", "false");
         (active.nextElementSibling ?? this.instructionsDiv.firstElementChild)?.setAttribute("active", "true");
-    }
-
-    async #getInstructions() {
-        // TODO : Mocked, needs to be really be connected
-        return [
-            {
-                label: "Continuez",
-                type: "STRAIGHT",
-                position: [43.613877, 7.073036],
-                distance: 23
-            },
-            {
-                label: "Tournez à gauche",
-                type: "LEFT",
-                position: [43.613877, 7.073036],
-                distance: 96
-            },
-            {
-                label: "Prenez la 2e sortie",
-                type: "ROUNDABOUT_LEFT",
-                position: [43.612052, 7.078460],
-                distance: 932
-            },
-            {
-                label: "Prenez la 1ere sortie",
-                type: "ROUNDABOUT_RIGHT",
-                position: [43.615223, 7.080608],
-                distance: 3051
-            },
-            {
-                label: "Prenez la 3e sortie",
-                type: "ROUNDABOUT_STRAIGHT",
-                position: [43.614015, 7.088676],
-                distance: 20103
-            },
-            {
-                label: "Tournez à droite",
-                type: "RIGHT",
-                position: [43.614015, 7.088676],
-                distance: 200105
-            }
-        ]
     }
 }
 

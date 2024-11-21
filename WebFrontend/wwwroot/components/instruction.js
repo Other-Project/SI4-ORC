@@ -36,6 +36,7 @@ export class Instruction extends HTMLElement {
 
     #distanceToString(dist) {
         if (!dist) return null;
+        if(dist < 10) return dist + " m";
         if (dist < 1000) return (dist / 10).toFixed(0) + "0 m";
         dist /= 1000;
         if (dist < 10) return dist.toFixed(2) + " km";
