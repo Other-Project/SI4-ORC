@@ -40,8 +40,10 @@ export class SidePanel extends HTMLElement {
     #setupComponents() {
         if (!this.sendBtn) return;
 
+        const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            let instructions = await new RoutingService().getRoute(this["start"].coords, this["end"].coords);
+            if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
+            let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
