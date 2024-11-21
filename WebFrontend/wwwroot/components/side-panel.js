@@ -1,20 +1,20 @@
 import {RoutingService} from "/routingService.js";
 
 const ORS_STEP_TYPES = [
-    "Left",
-    "Right",
-    "Sharp left",
-    "Sharp right",
-    "Slight left",
-    "Slight right",
-    "Straight",
-    "Enter roundabout",
-    "Exit roundabout",
-    "U-turn",
-    "Goal",
-    "Depart",
-    "Keep left",
-    "Keep right"
+    "left",
+    "right",
+    "sharp_left",
+    "sharp_right",
+    "slight_left",
+    "slight_right",
+    "straight",
+    "enter_roundabout",
+    "exit_roundabout",
+    "u_turn",
+    "goal",
+    "depart",
+    "keep_left",
+    "keep_right"
 ];
 
 export class SidePanel extends HTMLElement {
