@@ -7,37 +7,13 @@
     <link href="/assets/root.css" rel="stylesheet">
 </head>
 <body>
+<app-popup></app-popup>
 <side-panel></side-panel>
 <leaflet-map></leaflet-map>
 
 <script defer src="modules.js" type="module"></script>
 <script src="assets/js/jquery-1.7.2.min.js"></script>
 <script src="assets/js/stomp.js"></script>
-<script>
-    console.log("Yolo");
-    $(document).ready(function () {
-        console.log("Hello, I'm ready!");
-        if (window.WebSocket) {
-            let url = "ws://localhost:61614/admin"
-            let client = Stomp.client(url);
-            let login = "admin";
-            let passcode = "admin";
-            let destination = "/topic/chat.general";
-
-            // the client is notified when it is connected to the server.
-            client.connect(login, passcode, function (frame) {
-                console.log("connected to Stomp");
-                //$('#connect').fadeOut({duration: 'fast'});
-                //$('#connected').fadeIn();
-                client.subscribe(destination, function (message) {
-                    console.log("received message: " + message.body);
-                });
-                client.send(destination, {}, "Hello, STOMP");
-            });
-
-        }
-    });
-</script>
 
 </body>
 </html>

@@ -52,7 +52,7 @@
       }
       body = '';
       start = divider + 2; // PAS FORCEMENT UNE BONNE IDEE, DEVRAIT ETRE +1 seulement si premier car n'est pas un car bizarre
-      console.log("premier caractère est", data.charAt(0));
+      //console.log("premier caractère est", data.charAt(0));
       //if (data.charAt(0)!=Byte.LF) {console.log("on décale start de 1");start--;data.length=data.length-1;}
       if (headers['content-length']) {
         len = parseInt(headers['content-length']);
@@ -67,7 +67,7 @@
           body += chr;
         }
       }
-      console.log("le body extrait est:",body);
+      //console.log("le body extrait est:",body);
       return new Frame(command, headers, body);
     };
 
@@ -80,7 +80,7 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           data = _ref[_i];
 
-      console.log("la data sur laquelle on va unmarshallSingle est :",data, " de long ", data.length , "et ref[i] length? ", _ref[_i].length);
+      //console.log("la data sur laquelle on va unmarshallSingle est :",data, " de long ", data.length , "et ref[i] length? ", _ref[_i].length);
           if ((data.length) > 0) {
             _results.push(Frame._unmarshallSingle(data));
           }

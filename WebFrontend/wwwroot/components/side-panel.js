@@ -1,3 +1,5 @@
+import {ActiveMQ} from "/components/activemq.js";
+
 export class SidePanel extends HTMLElement {
 
 
@@ -24,6 +26,7 @@ export class SidePanel extends HTMLElement {
         if (!this.sendBtn) return;
 
         this.sendBtn.addEventListener("click", async () => {
+            let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/topic/chat.general");
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
@@ -40,6 +43,7 @@ export class SidePanel extends HTMLElement {
                 instructionElement.setAttribute("type", instruction.type);
                 instructionElement.setAttribute("dist", instruction.distance);
                 this.instructionsDiv.appendChild(instructionElement);
+                activeMQ.send(instruction.label);
             }
             setInterval(() => this.#nextInstruction(), 3000);
         });
