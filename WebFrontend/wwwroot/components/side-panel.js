@@ -1,20 +1,20 @@
 import {RoutingService} from "/routingService.js";
 
 const ORS_STEP_TYPES = [
-    "Left",
-    "Right",
-    "Sharp left",
-    "Sharp right",
-    "Slight left",
-    "Slight right",
-    "Straight",
-    "Enter roundabout",
-    "Exit roundabout",
-    "U-turn",
-    "Goal",
-    "Depart",
-    "Keep left",
-    "Keep right"
+    "left",
+    "right",
+    "sharp_left",
+    "sharp_right",
+    "slight_left",
+    "slight_right",
+    "straight",
+    "enter_roundabout",
+    "exit_roundabout",
+    "u_turn",
+    "goal",
+    "depart",
+    "keep_left",
+    "keep_right"
 ];
 
 import {ActiveMQ} from "/components/activemq.js";
@@ -42,9 +42,11 @@ export class SidePanel extends HTMLElement {
     #setupComponents() {
         if (!this.sendBtn) return;
 
+        const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            let instructions = await new RoutingService().getRoute(this["start"].coords, this["end"].coords);
             let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/topic/chat.general");
+            if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
+            let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],

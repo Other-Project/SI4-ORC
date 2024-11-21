@@ -26,7 +26,7 @@ L.Icon.Default = new LeafIcon({iconUrl: "/assets/icons/marker-blue.png"});
 export class LeafletMap extends HTMLDivElement {
     constructor() {
         super();
-        
+
         const shadow = this.attachShadow({mode: "open"});
 
         let style = document.createElement("link");
@@ -70,7 +70,9 @@ export class LeafletMap extends HTMLDivElement {
     async #updateMap() {
         if (!this.start || !this.end) return;
 
-        if (this.markers) for (let marker of this.markers) this.map.removeLayer(marker);
+        if (this.layer) this.map.removeLayer(this.layer);
+        this.layer = new L.FeatureGroup();
+        this.layer.addTo(this.map);
 
         this.markers = [
             L.marker(this.start.coords.toReversed(), {icon: greenIcon}),
@@ -81,15 +83,16 @@ export class LeafletMap extends HTMLDivElement {
         for (let segment of this.segments) {
             let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
             let color = segment["Vehicle"] === 6 ? "#5c34d5" : "#3388ff";
-            this.markers.push(L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m"));
+            L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
             if (!first)
-                this.markers.push(new LeafCircle(points[0], {
+                new LeafCircle(points[0], {
                     color: color,
                     fillColor: color
-                }).bindPopup(segment["InstructionText"]));
+                }).bindPopup(segment["InstructionText"]).addTo(this.layer);
             first = false;
         }
 
-        for (let marker of this.markers) marker.addTo(this.map);
+        for (let marker of this.markers) marker.addTo(this.layer);
+        this.map.fitBounds(this.layer.getBounds());
     }
 }
