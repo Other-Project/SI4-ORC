@@ -1,4 +1,5 @@
 import {RoutingService} from "/routingService.js";
+import {ActiveMQ} from "/components/activemq.js";
 
 const ORS_STEP_TYPES = [
     "left",
@@ -16,8 +17,6 @@ const ORS_STEP_TYPES = [
     "keep_left",
     "keep_right"
 ];
-
-import {ActiveMQ} from "/components/activemq.js";
 
 export class SidePanel extends HTMLElement {
     constructor() {
@@ -44,9 +43,10 @@ export class SidePanel extends HTMLElement {
 
         const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/topic/chat.general");
+            //let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/queue/route--test");
             if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
             let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
+            return;
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
@@ -62,8 +62,8 @@ export class SidePanel extends HTMLElement {
                 instructionElement.setAttribute("label", instruction["InstructionText"]);
                 instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
                 instructionElement.setAttribute("dist", instruction["Distance"]);
+                //activeMQ.send(instruction["InstructionText"]);
                 this.instructionsDiv.appendChild(instructionElement);
-                activeMQ.send(instruction.label);
             }
             setInterval(() => this.#nextInstruction(), 3000);
         });
