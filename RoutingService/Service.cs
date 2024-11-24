@@ -1,3 +1,4 @@
+using System.Text.Json;
 using GeoCoordinatePortable;
 using RoutingService.JCDecaux;
 using RoutingService.OpenRouteService;
@@ -17,21 +18,15 @@ public class Service : IService
     public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon,
         double endLat)
     {
-        Console.WriteLine("In CalculateRoute");
         try
         {
-            var connecturi = new Uri("activemq:tcp://localhost:8161");
+            var connecturi = new Uri("tcp://localhost:61616?wireFormat.maxInactivityDuration=0");
             var connectionFactory = new ConnectionFactory(connecturi);
             var connection = await connectionFactory.CreateConnectionAsync();
-            Console.WriteLine("In try");
             await connection.StartAsync();
-            Console.WriteLine("Connection started");
             var session = await connection.CreateSessionAsync();
-            //var name = "route--" + System.Guid.NewGuid();
-            var name = "route--test";
-            Console.WriteLine(name);
+            var name = "route--" + System.Guid.NewGuid();
             var destination = await session.GetQueueAsync(name);
-            Console.WriteLine("destination.name : ",destination.QueueName);
             var producer = await session.CreateProducerAsync(destination);
             producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
 
@@ -54,7 +49,7 @@ public class Service : IService
                     await connection.CloseAsync();
                 }
             });
-            return name;
+            return destination.QueueName;
         }
         catch (Exception e)
         {
@@ -92,6 +87,6 @@ public class Service : IService
         ISession session)
     {
         foreach (var segment in routeSegments)
-            await producer.SendAsync(await session.CreateObjectMessageAsync(segment));
+            await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
     }
 }

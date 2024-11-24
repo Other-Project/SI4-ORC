@@ -1,5 +1,4 @@
 import {RoutingService} from "/routingService.js";
-import {ActiveMQ} from "/components/activemq.js";
 
 const ORS_STEP_TYPES = [
     "left",
@@ -19,9 +18,11 @@ const ORS_STEP_TYPES = [
 ];
 
 export class SidePanel extends HTMLElement {
+
+    instructions = [];
+
     constructor() {
         super();
-
         const shadow = this.attachShadow({mode: "open"});
         fetch("/components/side-panel.html")
             .then(stream => stream.text())
@@ -36,6 +37,31 @@ export class SidePanel extends HTMLElement {
             if (!["start", "end"].includes(ev.detail.fieldName)) return;
             this[ev.detail.fieldName] = ev.detail.value;
         });
+
+        document.addEventListener("instructionAdded", ev => {
+            this.addInstructions(ev.detail);
+        });
+
+        document.addEventListener("instructionsReset", () => {
+            this.resetInstructions();
+        });
+    }
+
+    addInstructions(instruction) {
+        this.instructions.push(instruction);
+        //console.log("Instructions in side-panel: ", this.instructions);
+        let instructionElement = document.createElement("app-instruction");
+        instructionElement.setAttribute("active", (instruction === this.instructions[0]).toString());
+        instructionElement.setAttribute("label", instruction["InstructionText"]);
+        instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
+        instructionElement.setAttribute("dist", instruction["Distance"]);
+        this.instructionsDiv.appendChild(instructionElement);
+        setInterval(() => this.#nextInstruction(), 3000);
+    }
+
+    resetInstructions() {
+        this.instructionsDiv.innerHTML = "";
+        this.instructions = [];
     }
 
     #setupComponents() {
@@ -44,29 +70,30 @@ export class SidePanel extends HTMLElement {
         const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
             if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
-            let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
+            await routingService.getRoute(this["start"].coords, this["end"].coords);
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
                     end: this["end"],
-                    instructions: instructions
+                    instructions: this.instructions
                 }
             }));
-            console.log("Before instructions : ", instructions);
-            this.instructionsDiv.innerHTML = "";
-            console.log("Length : ", instructions.length);
-            for (let instruction of instructions) {
-                let instructionElement = document.createElement("app-instruction");
-                instructionElement.setAttribute("active", (instruction === instructions[0]).toString());
-                instructionElement.setAttribute("label", instruction["InstructionText"]);
-                instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
-                instructionElement.setAttribute("dist", instruction["Distance"]);
-                this.instructionsDiv.appendChild(instructionElement);
-                //console.log("Instruction : ", instruction);
-            }
-            console.log("After instructions : ", instructions);
-            setInterval(() => this.#nextInstruction(), 3000);
         });
+    }
+
+    #updateComponents() {
+        console.log("Before instructions : ", this.instructions);
+        console.log("Length : ", this.instructions.length);
+        this.instructionsDiv.innerHTML = "";
+        for (let instruction of this.instructions) {
+            /*let instructionElement = document.createElement("app-instruction");
+            instructionElement.setAttribute("active", (instruction === this.instructions[0]).toString());
+            instructionElement.setAttribute("label", instruction["InstructionText"]);
+            instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
+            instructionElement.setAttribute("dist", instruction["Distance"]);
+            this.instructionsDiv.appendChild(instructionElement);*/
+        }
+        setInterval(() => this.#nextInstruction(), 3000);
     }
 
     #nextInstruction() {
@@ -77,4 +104,3 @@ export class SidePanel extends HTMLElement {
         (active.nextElementSibling ?? this.instructionsDiv.firstElementChild)?.setAttribute("active", "true");
     }
 }
-

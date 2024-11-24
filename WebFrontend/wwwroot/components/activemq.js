@@ -13,30 +13,15 @@ export class ActiveMQ {
 
     async connect(destination) {
         if (window.WebSocket) {
-            this.instructions = [];
+            document.dispatchEvent(new CustomEvent("instructionsReset"));
             this.client = Stomp.client(this.url);
 
             this.client.connect(this.login, this.passcode, () => {
                 console.log("connected to Stomp");
                 this.client.subscribe(destination, (message) => {
-                    //console.log("Instructions : ", instructions);
-                    this.instructions.push(JSON.parse(message.body));
-                    this.instructionsReceived = true;
+                    document.dispatchEvent(new CustomEvent("instructionAdded", { detail: JSON.parse(message.body) }));
                 });
             });
         }
-    }
-
-    async getInstructions() {
-        return new Promise((resolve) => {
-            const checkInstructions = () => {
-                if (this.instructionsReceived) {
-                    resolve(this.instructions);
-                } else {
-                    setTimeout(checkInstructions, 500);
-                }
-            };
-            checkInstructions();
-        });
     }
 }
