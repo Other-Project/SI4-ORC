@@ -43,10 +43,8 @@ export class SidePanel extends HTMLElement {
 
         const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            //let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/queue/route--test");
             if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
             let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
-            return;
             document.dispatchEvent(new CustomEvent("locationValidated", {
                 detail: {
                     start: this["start"],
@@ -54,17 +52,19 @@ export class SidePanel extends HTMLElement {
                     instructions: instructions
                 }
             }));
-
+            console.log("Before instructions : ", instructions);
             this.instructionsDiv.innerHTML = "";
+            console.log("Length : ", instructions.length);
             for (let instruction of instructions) {
                 let instructionElement = document.createElement("app-instruction");
                 instructionElement.setAttribute("active", (instruction === instructions[0]).toString());
                 instructionElement.setAttribute("label", instruction["InstructionText"]);
                 instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
                 instructionElement.setAttribute("dist", instruction["Distance"]);
-                //activeMQ.send(instruction["InstructionText"]);
                 this.instructionsDiv.appendChild(instructionElement);
+                //console.log("Instruction : ", instruction);
             }
+            console.log("After instructions : ", instructions);
             setInterval(() => this.#nextInstruction(), 3000);
         });
     }

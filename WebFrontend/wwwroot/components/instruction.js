@@ -29,7 +29,7 @@ export class Instruction extends HTMLElement {
     #updateComponents() {
         if (!this.instruction) return;
         this.instruction.classList.toggle("active", this["active"] === "true");
-        this.icon.src = this.type ? "/assets/icons/steps/" + this["type"] + ".png" : "";
+        //this.icon.src = this.type ? "/assets/icons/steps/" + this["type"] + ".png" : "";
         this.displayText.innerText = this["label"] ?? "";
         this.distance.innerText = this.#distanceToString(this["dist"]) ?? "";
     }
