@@ -17,7 +17,6 @@ export class ActiveMQ {
             this.client = Stomp.client(this.url);
 
             this.client.connect(this.login, this.passcode, () => {
-                console.log("connected to Stomp");
                 this.client.subscribe(destination, (message) => {
                     document.dispatchEvent(new CustomEvent("instructionAdded", { detail: JSON.parse(message.body) }));
                 });

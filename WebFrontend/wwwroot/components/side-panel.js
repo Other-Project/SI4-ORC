@@ -49,7 +49,6 @@ export class SidePanel extends HTMLElement {
 
     addInstructions(instruction) {
         this.instructions.push(instruction);
-        //console.log("Instructions in side-panel: ", this.instructions);
         let instructionElement = document.createElement("app-instruction");
         instructionElement.setAttribute("active", (instruction === this.instructions[0]).toString());
         instructionElement.setAttribute("label", instruction["InstructionText"]);
@@ -84,21 +83,6 @@ export class SidePanel extends HTMLElement {
                 }
             }));
         });
-    }
-
-    #updateComponents() {
-        console.log("Before instructions : ", this.instructions);
-        console.log("Length : ", this.instructions.length);
-        this.instructionsDiv.innerHTML = "";
-        for (let instruction of this.instructions) {
-            /*let instructionElement = document.createElement("app-instruction");
-            instructionElement.setAttribute("active", (instruction === this.instructions[0]).toString());
-            instructionElement.setAttribute("label", instruction["InstructionText"]);
-            instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
-            instructionElement.setAttribute("dist", instruction["Distance"]);
-            this.instructionsDiv.appendChild(instructionElement);*/
-        }
-        setInterval(() => this.#nextInstruction(), 3000);
     }
 
     #nextInstruction() {
