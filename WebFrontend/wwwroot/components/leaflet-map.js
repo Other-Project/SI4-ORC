@@ -76,10 +76,8 @@ export class LeafletMap extends HTMLDivElement {
 
     async #addMarkers() {
         if (!this.start || !this.end) return;
-        this.markers = [
-            L.marker(this.start.coords.toReversed(), {icon: greenIcon}),
-            L.marker(this.end.coords.toReversed(), {icon: redIcon}),
-        ];
+            L.marker(this.start.coords.toReversed(), {icon: greenIcon}).addTo(this.layer);
+            L.marker(this.end.coords.toReversed(), {icon: redIcon}).addTo(this.layer);
         this.map.fitBounds(this.layer.getBounds());
     }
 
