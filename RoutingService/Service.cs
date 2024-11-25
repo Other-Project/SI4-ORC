@@ -70,7 +70,8 @@ public class Service : IService
 
         if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position))
         {
-            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking),producer, session);
+            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
+                session);
             return;
         }
 
@@ -90,9 +91,7 @@ public class Service : IService
         {
             await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
             if (compt++ % 20 == 0)
-            {
                 await Task.Delay(40);
-            }
         }
     }
 }
