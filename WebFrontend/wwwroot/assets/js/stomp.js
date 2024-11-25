@@ -3,7 +3,7 @@
   var Byte, Client, Frame, Stomp,
     __hasProp = {}.hasOwnProperty;
   
-  var MAX_FRAME_SIZE=16000*1024;
+  var MAX_FRAME_SIZE=16*1024;
   
   Byte = {
     LF: '\x0A',

@@ -1,6 +1,10 @@
+using System.Text.Json;
 using GeoCoordinatePortable;
 using RoutingService.JCDecaux;
 using RoutingService.OpenRouteService;
+using Apache.NMS;
+using Apache.NMS.ActiveMQ;
+using ISession = Apache.NMS.ISession;
 
 namespace RoutingService;
 
@@ -11,34 +15,83 @@ public class Service : IService
     private readonly JcDecauxClient _jcDecauxClient = new(Client);
     private readonly OrsClient _orsClient = new(Client);
 
-
-    public async Task<IEnumerable<RouteSegment>?> CalculateRoute(double startLon, double startLat, double endLon,
+    public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon,
         double endLat)
     {
         try
         {
-            var start = new GeoCoordinate(startLat, startLon);
-            var end = new GeoCoordinate(endLat, endLon);
+            var connecturi = new Uri("tcp://localhost:61616?wireFormat.maxInactivityDuration=0");
+            var connectionFactory = new ConnectionFactory(connecturi);
+            var connection = await connectionFactory.CreateConnectionAsync();
+            await connection.StartAsync();
+            var session = await connection.CreateSessionAsync();
+            var name = "route--" + System.Guid.NewGuid();
+            var destination = await session.GetQueueAsync(name);
+            var producer = await session.CreateProducerAsync(destination);
+            producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
 
-            await _jcDecauxClient.RetrieveContractsAsync();
-            await _jcDecauxClient.RetrieveStationsAsync();
-            var startStation = _jcDecauxClient.FindNearestStation(start);
-            if (startStation is null) return null;
-            var endStation = _jcDecauxClient.FindNearestStation(end);
-            if (endStation is null) return null;
-
-            if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position))
-                return await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking);
-
-            var route = await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking);
-            route.AddRange(await _orsClient.GetRoute(startStation.Position, endStation.Position));
-            route.AddRange(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking));
-            return route;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var start = new GeoCoordinate(startLat, startLon);
+                    var end = new GeoCoordinate(endLat, endLon);
+                    await CalculateRoute(start, end, producer, session);
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine(e);
+                }
+                finally
+                {
+                    // Don't forget to close your session and connection when finished.
+                    await session.CloseAsync();
+                    await connection.CloseAsync();
+                }
+            });
+            return destination.QueueName;
         }
         catch (Exception e)
         {
             Console.Error.WriteLine(e);
             return null;
+        }
+    }
+
+    private async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
+        ISession session)
+    {
+        await _jcDecauxClient.RetrieveContractsAsync();
+        await _jcDecauxClient.RetrieveStationsAsync();
+        var startStation = _jcDecauxClient.FindNearestStation(start);
+        if (startStation is null) return;
+        var endStation = _jcDecauxClient.FindNearestStation(end);
+        if (endStation is null) return;
+
+        if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position))
+        {
+            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
+                session);
+            return;
+        }
+
+        await AddRouteSegments(await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking),
+            producer, session);
+        await AddRouteSegments(await _orsClient.GetRoute(startStation.Position, endStation.Position), producer,
+            session);
+        await AddRouteSegments(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking),
+            producer, session);
+    }
+
+    private static async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,
+        ISession session)
+    {
+        var compt = 0;
+        foreach (var segment in routeSegments)
+        {
+            await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
+            if (compt++ % 20 == 0)
+                await Task.Delay(40);
         }
     }
 }

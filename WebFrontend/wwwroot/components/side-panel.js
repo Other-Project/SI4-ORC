@@ -17,12 +17,12 @@ const ORS_STEP_TYPES = [
     "keep_right"
 ];
 
-import {ActiveMQ} from "/components/activemq.js";
-
 export class SidePanel extends HTMLElement {
+
+    instructions = [];
+
     constructor() {
         super();
-
         const shadow = this.attachShadow({mode: "open"});
         fetch("/components/side-panel.html")
             .then(stream => stream.text())
@@ -37,6 +37,36 @@ export class SidePanel extends HTMLElement {
             if (!["start", "end"].includes(ev.detail.fieldName)) return;
             this[ev.detail.fieldName] = ev.detail.value;
         });
+
+        document.addEventListener("instructionAdded", ev => {
+            this.addInstructions(ev.detail);
+        });
+
+        document.addEventListener("instructionsReset", () => {
+            this.resetInstructions();
+        });
+    }
+
+    addInstructions(instruction) {
+        this.instructions.push(instruction);
+        let instructionElement = document.createElement("app-instruction");
+        instructionElement.setAttribute("active", (instruction === this.instructions[0]).toString());
+        instructionElement.setAttribute("label", instruction["InstructionText"]);
+        instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
+        instructionElement.setAttribute("dist", instruction["Distance"]);
+        this.instructionsDiv.appendChild(instructionElement);
+        document.dispatchEvent(new CustomEvent("addSegment", {
+            detail: {
+                segment: instruction
+            }
+        }));
+        setInterval(() => this.#nextInstruction(), 3000);
+    }
+
+    resetInstructions() {
+        this.instructionsDiv.innerHTML = "";
+        this.instructions = [];
+        document.dispatchEvent(new CustomEvent("resetMap"));
     }
 
     #setupComponents() {
@@ -44,28 +74,14 @@ export class SidePanel extends HTMLElement {
 
         const routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            let activeMQ = new ActiveMQ("ws://localhost:61614/admin", "admin", "admin", "/topic/chat.general");
             if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
-            let instructions = await routingService.getRoute(this["start"].coords, this["end"].coords);
-            document.dispatchEvent(new CustomEvent("locationValidated", {
+            await routingService.getRoute(this["start"].coords, this["end"].coords);
+            document.dispatchEvent(new CustomEvent("addMarkers", {
                 detail: {
                     start: this["start"],
                     end: this["end"],
-                    instructions: instructions
                 }
             }));
-
-            this.instructionsDiv.innerHTML = "";
-            for (let instruction of instructions) {
-                let instructionElement = document.createElement("app-instruction");
-                instructionElement.setAttribute("active", (instruction === instructions[0]).toString());
-                instructionElement.setAttribute("label", instruction["InstructionText"]);
-                instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
-                instructionElement.setAttribute("dist", instruction["Distance"]);
-                this.instructionsDiv.appendChild(instructionElement);
-                activeMQ.send(instruction.label);
-            }
-            setInterval(() => this.#nextInstruction(), 3000);
         });
     }
 
@@ -77,4 +93,3 @@ export class SidePanel extends HTMLElement {
         (active.nextElementSibling ?? this.instructionsDiv.firstElementChild)?.setAttribute("active", "true");
     }
 }
-
