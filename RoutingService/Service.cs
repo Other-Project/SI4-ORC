@@ -70,8 +70,7 @@ public class Service : IService
 
         if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position))
         {
-            await producer.SendAsync(await session.CreateObjectMessageAsync(
-                await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking)));
+            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking),producer, session);
             return;
         }
 
