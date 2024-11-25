@@ -85,7 +85,14 @@ public class Service : IService
     private static async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,
         ISession session)
     {
+        var compt = 0;
         foreach (var segment in routeSegments)
+        {
             await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
+            if (compt++ % 20 == 0)
+            {
+                await Task.Delay(40);
+            }
+        }
     }
 }
