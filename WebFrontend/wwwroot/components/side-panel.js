@@ -56,12 +56,18 @@ export class SidePanel extends HTMLElement {
         instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
         instructionElement.setAttribute("dist", instruction["Distance"]);
         this.instructionsDiv.appendChild(instructionElement);
+        document.dispatchEvent(new CustomEvent("addSegment", {
+            detail: {
+                segment: instruction
+            }
+        }));
         setInterval(() => this.#nextInstruction(), 3000);
     }
 
     resetInstructions() {
         this.instructionsDiv.innerHTML = "";
         this.instructions = [];
+        document.dispatchEvent(new CustomEvent("resetMap"));
     }
 
     #setupComponents() {
@@ -71,11 +77,10 @@ export class SidePanel extends HTMLElement {
         this.sendBtn.addEventListener("click", async () => {
             if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
             await routingService.getRoute(this["start"].coords, this["end"].coords);
-            document.dispatchEvent(new CustomEvent("locationValidated", {
+            document.dispatchEvent(new CustomEvent("addMarkers", {
                 detail: {
                     start: this["start"],
                     end: this["end"],
-                    instructions: this.instructions
                 }
             }));
         });

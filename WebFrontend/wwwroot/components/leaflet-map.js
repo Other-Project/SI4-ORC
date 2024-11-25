@@ -59,40 +59,42 @@ export class LeafletMap extends HTMLDivElement {
 
         shadow.appendChild(mapDiv);
 
-        document.addEventListener("locationValidated", async ev => {
+        document.addEventListener("addSegment", async ev => {
+            await this.#addSegment(ev.detail.segment);
+        })
+
+        document.addEventListener("resetMap", async () => {
+            await this.#resetMap();
+        });
+
+        document.addEventListener("addMarkers", async ev => {
             this.start = ev.detail.start;
             this.end = ev.detail.end;
-            this.segments = ev.detail.instructions;
-            await this.#updateMap();
+            await this.#addMarkers();
         });
     }
 
-    async #updateMap() {
+    async #addMarkers() {
         if (!this.start || !this.end) return;
-
-        if (this.layer) this.map.removeLayer(this.layer);
-        this.layer = new L.FeatureGroup();
-        this.layer.addTo(this.map);
-
         this.markers = [
             L.marker(this.start.coords.toReversed(), {icon: greenIcon}),
             L.marker(this.end.coords.toReversed(), {icon: redIcon}),
         ];
+    }
 
-        let first = true;
-        for (let segment of this.segments) {
-            let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
-            let color = segment["Vehicle"] === 6 ? "#5c34d5" : "#3388ff";
-            L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
-            if (!first)
-                new LeafCircle(points[0], {
-                    color: color,
-                    fillColor: color
-                }).bindPopup(segment["InstructionText"]).addTo(this.layer);
-            first = false;
-        }
+    async #resetMap() {
+        if (this.layer) this.map.removeLayer(this.layer);
+        this.layer = new L.FeatureGroup();
+        this.layer.addTo(this.map);
+    }
 
-        for (let marker of this.markers) marker.addTo(this.layer);
-        this.map.fitBounds(this.layer.getBounds());
+    async #addSegment(segment) {
+        let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
+        let color = segment["Vehicle"] === 6 ? "#5c34d5" : "#3388ff";
+        L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
+        new LeafCircle(points[0], {
+            color: color,
+            fillColor: color
+        }).bindPopup(segment["InstructionText"]).addTo(this.layer);
     }
 }
