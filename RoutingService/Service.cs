@@ -68,7 +68,7 @@ public class Service : IService
         var endStation = _jcDecauxClient.FindNearestStation(end);
         if (endStation is null) return;
 
-        if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position))
+        if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position))
         {
             await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
                 session);
