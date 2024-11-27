@@ -3,7 +3,6 @@ export class ActiveMQ {
     url;
     login;
     passcode;
-    instructions = [];
 
     constructor(url, login, passcode) {
         this.url = url;
@@ -15,12 +14,18 @@ export class ActiveMQ {
         if (window.WebSocket) {
             document.dispatchEvent(new CustomEvent("instructionsReset"));
             this.client = Stomp.client(this.url);
-
             this.client.connect(this.login, this.passcode, () => {
                 this.client.subscribe(destination, (message) => {
-                    document.dispatchEvent(new CustomEvent("instructionAdded", { detail: JSON.parse(message.body) }));
+                    document.dispatchEvent(new CustomEvent("instructionAdded", {detail: JSON.parse(message.body)}));
                 });
             });
+        }
+    }
+
+    async sendTo(destination, message) {
+        if (window.WebSocket) {
+            console.log("sending message : ", message);
+            this.client.send(destination, {}, JSON.stringify(message));
         }
     }
 }

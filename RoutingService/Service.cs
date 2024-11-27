@@ -15,7 +15,10 @@ public class Service : IService
     private readonly JcDecauxClient _jcDecauxClient = new(Client);
     private readonly OrsClient _orsClient = new(Client);
 
-    public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon,
+    private static bool _shouldWait = true;
+
+    public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat,
+        double endLon,
         double endLat)
     {
         try
@@ -25,9 +28,21 @@ public class Service : IService
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();
-            var name = "route--" + System.Guid.NewGuid();
+
+            var name = "route--" + Guid.NewGuid();
             var destination = await session.GetQueueAsync(name);
             var producer = await session.CreateProducerAsync(destination);
+
+            var nameQueue2 = "route--" + Guid.NewGuid();
+            var destination2 = await session.GetQueueAsync(nameQueue2);
+            var consumer = await session.CreateConsumerAsync(destination2);
+            consumer.Listener += message =>
+            {
+                if (message is not ITextMessage) return;
+                _shouldWait = false;
+                Console.WriteLine("I'm in the listener");
+                Console.WriteLine(message);
+            };
             producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
 
             _ = Task.Run(async () =>
@@ -49,7 +64,7 @@ public class Service : IService
                     await connection.CloseAsync();
                 }
             });
-            return destination.QueueName;
+            return (destination.QueueName, destination2.QueueName);
         }
         catch (Exception e)
         {
@@ -68,7 +83,8 @@ public class Service : IService
         var endStation = _jcDecauxClient.FindNearestStation(end);
         if (endStation is null) return;
 
-        if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position))
+        if (start.GetDistanceTo(end) <=
+            start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position))
         {
             await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
                 session);
@@ -86,12 +102,18 @@ public class Service : IService
     private static async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,
         ISession session)
     {
-        var compt = 0;
+        var compt = 1;
         foreach (var segment in routeSegments)
         {
             await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
-            if (compt++ % 20 == 0)
-                await Task.Delay(40);
+            if (compt++ % 10 != 0) continue;
+            while (_shouldWait)
+            {
+                await Task.Delay(500);
+                //Console.WriteLine("In the while loop");
+            }
+
+            _shouldWait = true;
         }
     }
 }

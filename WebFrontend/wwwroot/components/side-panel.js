@@ -20,6 +20,7 @@ const ORS_STEP_TYPES = [
 export class SidePanel extends HTMLElement {
 
     instructions = [];
+    compteur = 0;
 
     constructor() {
         super();
@@ -45,7 +46,7 @@ export class SidePanel extends HTMLElement {
         document.addEventListener("instructionsReset", () => {
             this.resetInstructions();
         });
-        setInterval(() => this.#nextInstruction(), 3000);
+        setInterval(() => this.#nextInstruction(), 200);
     }
 
     addInstructions(instruction) {
@@ -66,16 +67,17 @@ export class SidePanel extends HTMLElement {
     resetInstructions() {
         this.instructionsDiv.innerHTML = "";
         this.instructions = [];
+        this.compteur = 0;
         document.dispatchEvent(new CustomEvent("resetMap"));
     }
 
     #setupComponents() {
         if (!this.sendBtn) return;
 
-        const routingService = new RoutingService();
+        this.routingService = new RoutingService();
         this.sendBtn.addEventListener("click", async () => {
-            if (routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
-            await routingService.getRoute(this["start"].coords, this["end"].coords);
+            if (this.routingService.isLastRoute(this["start"].coords, this["end"].coords)) return;
+            await this.routingService.getRoute(this["start"].coords, this["end"].coords);
             document.dispatchEvent(new CustomEvent("addMarkers", {
                 detail: {
                     start: this["start"],
@@ -85,8 +87,11 @@ export class SidePanel extends HTMLElement {
         });
     }
 
-    #nextInstruction() {
-        if (!this.instructionsDiv) return;
+    async #nextInstruction() {
+        if (!this.instructionsDiv || this.instructions.length === 0) return;
+        if (this.instructions.length - this.compteur++ < 5) {
+            await this.routingService.sendMessage("Hello");
+        }
         let active = this.instructionsDiv.querySelector("[active=true]");
         if (!active) return;
         active.setAttribute("active", "false");

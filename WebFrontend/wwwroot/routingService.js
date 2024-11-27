@@ -16,8 +16,14 @@ export class RoutingService {
 
         let url = `http://localhost:5001/web/route?startLon=${start[0]}&startLat=${start[1]}&endLon=${end[0]}&endLat=${end[1]}`;
         const queueName = (await (await fetch(url)).json())["CalculateRouteResult"];
-        await this.activemq.connect(queueName);
+        const receiveQueueName = queueName["Item1"];
+        this.sendQueueName = queueName["Item2"];
+        await this.activemq.connect(receiveQueueName);
         this.start = start;
         this.end = end;
+    }
+
+    async sendMessage(message) {
+        await this.activemq.sendTo(this.sendQueueName, message);
     }
 }
