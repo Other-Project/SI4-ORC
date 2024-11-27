@@ -23,6 +23,18 @@ const greenIcon = new LeafIcon({iconUrl: "/assets/icons/marker-green.png"});
 const redIcon = new LeafIcon({iconUrl: "/assets/icons/marker-red.png"});
 L.Icon.Default = new LeafIcon({iconUrl: "/assets/icons/marker-blue.png"});
 
+const typeColor = [
+    "#00a491", // driving-car
+    "#1dba8b", // driving-hgv
+    "#3388ff", // cycling-regular
+    "#00b1ff", // cycling-road
+    "#00cff2", // cycling-mountain
+    "#0088b0", // cycling-electric
+    "#5c34d5", // foot-walking
+    "#9480b3", // foot-hiking
+    "#df9a1c", // wheelchair
+];
+
 export class LeafletMap extends HTMLDivElement {
     constructor() {
         super();
@@ -44,12 +56,8 @@ export class LeafletMap extends HTMLDivElement {
             zoomControl: false
         }).setView([43.6155, 7.0719], 16);
         setTimeout(() => this.map.invalidateSize(), 500);
-        L.control.zoom({
-            position: "bottomright"
-        }).addTo(this.map);
-        L.control.locate({
-            position: "bottomright"
-        }).addTo(this.map);
+        L.control.zoom({position: "bottomright"}).addTo(this.map);
+        L.control.locate({position: "bottomright"}).addTo(this.map);
 
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
@@ -59,13 +67,9 @@ export class LeafletMap extends HTMLDivElement {
 
         shadow.appendChild(mapDiv);
 
-        document.addEventListener("addSegment", async ev => {
-            await this.#addSegment(ev.detail.segment);
-        })
+        document.addEventListener("addSegment", async ev => await this.#addSegment(ev.detail.segment));
 
-        document.addEventListener("resetMap", async () => {
-            await this.#resetMap();
-        });
+        document.addEventListener("resetMap", async () => await this.#resetMap());
 
         document.addEventListener("addMarkers", async ev => {
             this.start = ev.detail.start;
@@ -76,8 +80,8 @@ export class LeafletMap extends HTMLDivElement {
 
     async #addMarkers() {
         if (!this.start || !this.end) return;
-            L.marker(this.start.coords.toReversed(), {icon: greenIcon}).addTo(this.layer);
-            L.marker(this.end.coords.toReversed(), {icon: redIcon}).addTo(this.layer);
+        L.marker(this.start.coords.toReversed(), {icon: greenIcon}).addTo(this.layer);
+        L.marker(this.end.coords.toReversed(), {icon: redIcon}).addTo(this.layer);
         this.map.fitBounds(this.layer.getBounds());
     }
 
@@ -89,7 +93,7 @@ export class LeafletMap extends HTMLDivElement {
 
     async #addSegment(segment) {
         let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
-        let color = segment["Vehicle"] === 6 ? "#5c34d5" : "#3388ff";
+        let color = typeColor[segment["Vehicle"]];
         L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
         new LeafCircle(points[0], {
             color: color,

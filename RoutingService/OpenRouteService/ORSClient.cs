@@ -66,6 +66,7 @@ public class OrsClient(HttpClient client)
     public enum Vehicle
     {
         [EnumMember(Value = "driving-car")] DrivingCar,
+        ///<summary>Heavy goods vehicle</summary>
         [EnumMember(Value = "driving-hgv")] DrivingHgv,
         [EnumMember(Value = "cycling-regular")] CyclingRegular,
         [EnumMember(Value = "cycling-road")] CyclingRoad,

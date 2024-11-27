@@ -16,7 +16,7 @@ public class Station
 
     /// <summary>Le nom du contrat de cette station</summary>
     [JsonPropertyName("contractName")]
-    public string? ContractName { get; set; }
+    public string ContractName { get; set; } = null!;
 
     /// <summary>Le nom de la station</summary>
     [JsonPropertyName("name")]

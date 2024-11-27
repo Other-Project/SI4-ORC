@@ -15,8 +15,9 @@ public class Service : IService
     private readonly JcDecauxClient _jcDecauxClient = new(Client);
     private readonly OrsClient _orsClient = new(Client);
 
-    public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon,
-        double endLat)
+    public static double MaxWalkedDistance { get; set; }
+
+    public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
     {
         try
         {
@@ -44,6 +45,9 @@ public class Service : IService
                 }
                 finally
                 {
+                    await Task.Delay(2000);
+                    await session.DeleteDestinationAsync(destination);
+                    
                     // Don't forget to close your session and connection when finished.
                     await session.CloseAsync();
                     await connection.CloseAsync();
@@ -58,29 +62,27 @@ public class Service : IService
         }
     }
 
-    private async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
-        ISession session)
+    private async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer, ISession session)
     {
-        await _jcDecauxClient.RetrieveContractsAsync();
-        await _jcDecauxClient.RetrieveStationsAsync();
-        var startStation = _jcDecauxClient.FindNearestStation(start);
+        var startStation = await _jcDecauxClient.FindNearestStation(start);
         if (startStation is null) return;
-        var endStation = _jcDecauxClient.FindNearestStation(end);
+        var endStation = await _jcDecauxClient.FindNearestStation(end, startStation.ContractName);
         if (endStation is null) return;
 
-        if (start.GetDistanceTo(end) <= start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position))
-        {
-            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
-                session);
-            return;
-        }
+        var straightDistance = start.GetDistanceTo(end);
+        var walkedDistance = start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position);
+        
+        IEnumerable<RouteSegment> route;
+        if (walkedDistance > MaxWalkedDistance)
+            route = await _orsClient.GetRoute(start, end, OrsClient.Vehicle.DrivingCar);
+        else if (straightDistance <= walkedDistance)
+            route = await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking);
+        else
+            route = (await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking))
+                .Concat(await _orsClient.GetRoute(startStation.Position, endStation.Position))
+                .Concat(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking));
 
-        await AddRouteSegments(await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking),
-            producer, session);
-        await AddRouteSegments(await _orsClient.GetRoute(startStation.Position, endStation.Position), producer,
-            session);
-        await AddRouteSegments(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking),
-            producer, session);
+        await AddRouteSegments(route, producer, session);
     }
 
     private static async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,
