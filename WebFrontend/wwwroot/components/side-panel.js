@@ -45,6 +45,7 @@ export class SidePanel extends HTMLElement {
         document.addEventListener("instructionsReset", () => {
             this.resetInstructions();
         });
+        setInterval(() => this.#nextInstruction(), 3000);
     }
 
     addInstructions(instruction) {
@@ -60,7 +61,6 @@ export class SidePanel extends HTMLElement {
                 segment: instruction
             }
         }));
-        setInterval(() => this.#nextInstruction(), 3000);
     }
 
     resetInstructions() {
