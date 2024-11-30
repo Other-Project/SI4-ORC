@@ -76,9 +76,9 @@ public class Service : IService
             route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.FootWalking);
         else
             route = (await proxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position, Vehicle.FootWalking))
-                .Append(new RouteSegment { InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.FootWalking })
+                .Append(new RouteSegment { InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.FootWalking, Points = [] })
                 .Concat(await proxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position, Vehicle.CyclingRegular))
-                .Append(new RouteSegment { InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.CyclingRegular })
+                .Append(new RouteSegment { InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.CyclingRegular, Points = [] })
                 .Concat(await proxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
 
         await AddRouteSegments(route, producer, session);
