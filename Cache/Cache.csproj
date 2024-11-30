@@ -16,6 +16,8 @@
     <ItemGroup>
         <PackageReference Include="CoreWCF.Primitives" Version="1.*"/>
         <PackageReference Include="CoreWCF.Http" Version="1.*"/>
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
+        <PackageReference Include="PolylineEncoder.Net" Version="1.0.1"/>
     </ItemGroup>
     <ItemGroup>
       <None Remove="Properties\launchSettings.json" />

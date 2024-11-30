@@ -1,34 +1,27 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using GeoCoordinatePortable;
 using Microsoft.OpenApi.Extensions;
 using Models.JCDecaux;
 using Models.OpenRouteService;
 using PolylineEncoder.Net.Utility.Decoders;
 
-namespace RoutingService;
+namespace Cache;
 
-public class OrsClient(HttpClient client)
+public class OrsClient : IObjectGetter<List<RouteSegment>>
 {
     public static string ApiUrl { get; set; } = "https://api.openrouteservice.org/v2";
     public static string? ApiKey { get; set; }
 
+    private static readonly GenericProxyCache<List<RouteSegment>> RouteSegmentCache = new(new OrsClient());
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { IncludeFields = true };
 
-    public async Task<List<RouteSegment>> GetRoute(GeoCoordinate start, GeoCoordinate end, Vehicle vehicle = Vehicle.CyclingRegular)
+    public static async Task<List<RouteSegment>> GetRoute(Position start, Position end, Vehicle vehicle = Vehicle.CyclingRegular)
+        => await RouteSegmentCache.GetAsync(JsonSerializer.Serialize((start, end, vehicle), JsonSerializerOptions));
+
+    public async Task<List<RouteSegment>> GetObjectAsync(HttpClient client, string itemName)
     {
+        var (start, end, vehicle) = JsonSerializer.Deserialize<(Position, Position, Vehicle)>(itemName, JsonSerializerOptions);
         if (ApiKey == null) throw new InvalidOperationException("API Key not set");
-
-        /*https://api.openrouteservice.org/v2/directions/driving-car/json
-        var url = $"{ApiUrl}/directions/{vehicle.GetDisplayName()}/json;" +
-                  $"?api_key={ApiKey}&start={start.Longitude},{start.Latitude}&end={end.Longitude},{end.Latitude}";
-
-        await client.PostAsJsonAsync($"{ApiUrl}/contracts?apiKey={ApiKey}", new
-        {
-            coordinates = new double[][] { [start.Longitude, start.Latitude], [end.Longitude, end.Latitude] },
-            language = "fr",
-            roundabout_exits = true
-        });*/
-
 
         var request = new HttpRequestMessage
         {

@@ -1,12 +1,10 @@
 namespace Cache;
 
-public class GenericProxyCache<T>
+public class GenericProxyCache<T>(IObjectGetter<T> ObjectGetter)
 {
     private HttpClient Client { get; } = new();
     private DateTimeOffset DtDefault { get; } = ObjectCache<T>.InfiniteAbsoluteExpiration;
     private Dictionary<string, ObjectCache<T>> Cache { get; } = new();
-
-    private IObjectGetter<T> ObjectGetter { get; set; }
 
     public Task<T> GetAsync(string cacheItemName) => GetAsync(cacheItemName, DtDefault);
 
@@ -16,7 +14,7 @@ public class GenericProxyCache<T>
     {
         if (Cache.TryGetValue(cacheItemName, out var objCache) && objCache.Expiry > DateTimeOffset.Now)
             return objCache.Value;
-        var item = await ObjectGetter.GetObjectAsync(cacheItemName);
+        var item = await ObjectGetter.GetObjectAsync(Client, cacheItemName);
         Cache[cacheItemName] = new ObjectCache<T>(item, dt);
         return item;
     }
@@ -27,5 +25,5 @@ internal record ObjectCache<T>(T Value, DateTimeOffset Expiry)
 }
 public interface IObjectGetter<T>
 {
-    Task<T> GetObjectAsync(string itemName);
+    Task<T> GetObjectAsync(HttpClient client, string itemName);
 }

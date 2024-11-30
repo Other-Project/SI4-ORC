@@ -1,16 +1,19 @@
-﻿namespace Cache;
+﻿using Models.JCDecaux;
+using Models.OpenRouteService;
+
+namespace Cache;
 
 [ServiceContract]
-public interface IService
+public interface IProxyCacheService
 {
-    [OperationContract]
-    string GetData(int value);
+    [OperationContract] Task<List<Station>> GetStations();
+    [OperationContract] Task<List<Station>> GetStationsOfContract(string contractName);
+    [OperationContract] Task<List<RouteSegment>> GetRoute(Position start, Position end, Vehicle vehicle = Vehicle.CyclingRegular);
 }
-
-public class Service : IService
+[ServiceBehavior(IncludeExceptionDetailInFaults = true)]
+public class ProxyCacheService : IProxyCacheService
 {
-    public string GetData(int value)
-    {
-        return string.Format("You entered: {0}", value);
-    }
+    public Task<List<Station>> GetStations() => JcDecauxClient.GetStationsAsync();
+    public Task<List<Station>> GetStationsOfContract(string contractName) => JcDecauxClient.GetStationsAsync(contractName);
+    public Task<List<RouteSegment>> GetRoute(Position start, Position end, Vehicle vehicle = Vehicle.CyclingRegular) => OrsClient.GetRoute(start, end, vehicle);
 }

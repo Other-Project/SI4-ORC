@@ -6,12 +6,17 @@ builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddr
 
 var app = builder.Build();
 
+JcDecauxClient.ApiUrl = builder.Configuration.GetValue<string>("JCDecaux:ApiUrl") ?? JcDecauxClient.ApiUrl;
+JcDecauxClient.ApiKey = builder.Configuration.GetValue<string>("JCDecaux:ApiKey");
+OrsClient.ApiUrl = builder.Configuration.GetValue<string>("OpenRouteService:ApiUrl") ?? OrsClient.ApiUrl;
+OrsClient.ApiKey = builder.Configuration.GetValue<string>("OpenRouteService:ApiKey");
+
 app.UseServiceModel(serviceBuilder =>
 {
-    serviceBuilder.AddService<Service>();
-    serviceBuilder.AddServiceEndpoint<Service, IService>(new BasicHttpBinding(BasicHttpSecurityMode.None), "/");
+    serviceBuilder.AddService<ProxyCacheService>();
+    serviceBuilder.AddServiceEndpoint<ProxyCacheService, IProxyCacheService>(new BasicHttpBinding(BasicHttpSecurityMode.None), "/");
     var serviceMetadataBehavior = app.Services.GetRequiredService<ServiceMetadataBehavior>();
     serviceMetadataBehavior.HttpsGetEnabled = true;
 });
 
-app.Run();
+await app.RunAsync();
