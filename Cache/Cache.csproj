@@ -22,7 +22,4 @@
     <ItemGroup>
       <None Remove="Properties\launchSettings.json" />
     </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Models\Models.csproj"/>
-    </ItemGroup>
 </Project>

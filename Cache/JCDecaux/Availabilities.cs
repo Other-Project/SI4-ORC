@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Models.JCDecaux;
+namespace Cache.JCDecaux;
 
 public class Availabilities
 {

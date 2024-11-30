@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Models.OpenRouteService;
+﻿namespace Cache.OpenRouteService;
 
 public enum Vehicle
 {

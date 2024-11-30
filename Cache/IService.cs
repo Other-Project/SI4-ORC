@@ -1,5 +1,5 @@
-﻿using Models.JCDecaux;
-using Models.OpenRouteService;
+﻿using Cache.JCDecaux;
+using Cache.OpenRouteService;
 
 namespace Cache;
 

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Models.JCDecaux;
+using Cache.JCDecaux;
 
 namespace Cache;
 

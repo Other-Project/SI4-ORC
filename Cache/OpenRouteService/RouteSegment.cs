@@ -1,6 +1,6 @@
-﻿using Models.JCDecaux;
+﻿using Cache.JCDecaux;
 
-namespace Models.OpenRouteService;
+namespace Cache.OpenRouteService;
 
 public class RouteSegment
 {
