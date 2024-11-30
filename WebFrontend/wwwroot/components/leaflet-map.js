@@ -49,6 +49,10 @@ export class LeafletMap extends HTMLDivElement {
         style.href = "/node_modules/leaflet.locatecontrol/dist/L.Control.Locate.css";
         style.rel = "stylesheet";
         shadow.appendChild(style);
+        style = document.createElement("link");
+        style.href = "/components/leaflet-map.css";
+        style.rel = "stylesheet";
+        shadow.appendChild(style);
 
         let mapDiv = document.createElement("div");
         mapDiv.style.height = "100%";
