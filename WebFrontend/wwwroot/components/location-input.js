@@ -2,17 +2,20 @@ const FRENCH_ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
 const ORS_ADDRESS_API = "https://api.openrouteservice.org/geocode/autocomplete?api_key=5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c";
 
 let currentPosition;
-if ("geolocation" in navigator)
-    setInterval(async () => {
-        const pos = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        currentPosition = {
-            long: pos.coords.longitude,
-            lat: pos.coords.latitude
-        };
-    }, 30000);
-else console.warn("No geolocation service");
+if ("geolocation" in navigator) {
+    await updateGeoLoc();
+    setInterval(async () => await updateGeoLoc(), 15000);
+} else console.warn("No geolocation service");
+
+async function updateGeoLoc() {
+    const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+    currentPosition = {
+        long: pos.coords.longitude,
+        lat: pos.coords.latitude
+    };
+}
 
 export class LocationInput extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
@@ -60,20 +63,11 @@ export class LocationInput extends HTMLElement {
     }
 
     #setupComponents() {
-        this.lastUpdate = 0;
-
+        this.input.addEventListener("focusin", async () => await this.#updateSuggestions(await this.#getNewSuggestions(this.input.value)));
+        this.input.addEventListener("focusout", () => this.#clearSuggestions());
         this.input.addEventListener("keydown", async () => {
-            let oldText = this.input.value;
-            let time = +new Date();
-
-            setTimeout(async () => {
-                if (oldText === this.seachText || oldText !== this.input.value && time - this.lastUpdate < 500) return;
-                let data = await this.#getNewSuggestions(oldText);
-                if (time < this.lastUpdate) return; // The request "expired" (a new one was received in-between)
-                this.lastUpdate = time;
-                this.seachText = oldText;
-                await this.#updateSuggestions(data);
-            }, 500);
+            if (this.inputTimeout) clearTimeout(this.inputTimeout);
+            this.inputTimeout = setTimeout(async () => await this.#updateSuggestions(await this.#getNewSuggestions(this.input.value)), 500);
         });
     }
 
@@ -112,8 +106,8 @@ export class LocationInput extends HTMLElement {
     async #getNewSuggestions(searchValue) {
         let result = [];
 
-        if ("Ma position".match(searchValue)) {
-            if (currentPosition) result.push({
+        if ("ma position".includes(searchValue.toLowerCase()) && currentPosition)
+            result.push({
                 properties: {
                     label: "Ma position"
                 },
@@ -121,7 +115,6 @@ export class LocationInput extends HTMLElement {
                     coordinates: [currentPosition.long, currentPosition.lat]
                 }
             });
-        }
 
         if (searchValue.length >= 3) { // The api won't respond if len < 3
             let url = await this.#addressCompletionApiUrl(searchValue);
@@ -138,6 +131,7 @@ export class LocationInput extends HTMLElement {
             let option = document.createElement("li");
             option.innerText = suggest.properties.label;
             option.onclick = () => this.#selectSuggestion(suggest);
+            option.onmousedown = e => e.preventDefault();
             this.datalist.appendChild(option);
         }
         this.datalist.classList.remove("hide");
