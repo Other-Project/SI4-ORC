@@ -27,5 +27,7 @@ public class Step
         Depart = 11,
         KeepLeft = 12,
         KeepRight = 13,
+
+        ChangeVehicle = 14 // Special
     }
 }

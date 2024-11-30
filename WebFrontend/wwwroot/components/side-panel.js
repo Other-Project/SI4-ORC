@@ -14,7 +14,8 @@ const ORS_STEP_TYPES = [
     "goal",
     "depart",
     "keep_left",
-    "keep_right"
+    "keep_right",
+    "change_vehicle"
 ];
 
 export class SidePanel extends HTMLElement {

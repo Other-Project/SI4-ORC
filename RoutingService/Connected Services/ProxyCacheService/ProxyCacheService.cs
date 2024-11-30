@@ -14,7 +14,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Station", Namespace="http://schemas.datacontract.org/2004/07/Models.JCDecaux")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Station", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Vehicle))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.RouteSegment[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.RouteSegment))]
@@ -254,7 +254,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-        [System.Runtime.Serialization.DataContractAttribute(Name="Station.StationStatus", Namespace="http://schemas.datacontract.org/2004/07/Models.JCDecaux")]
+        [System.Runtime.Serialization.DataContractAttribute(Name="Station.StationStatus", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
         public enum StationStatus : int
         {
             
@@ -268,7 +268,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Stands", Namespace="http://schemas.datacontract.org/2004/07/Models.JCDecaux")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Stands", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
     public partial class Stands : object
     {
         
@@ -305,7 +305,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Position", Namespace="http://schemas.datacontract.org/2004/07/Models.JCDecaux")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Position", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
     public partial class Position : object
     {
         
@@ -341,7 +341,7 @@ namespace RoutingService.ProxyCacheService
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Vehicle", Namespace="http://schemas.datacontract.org/2004/07/Models.OpenRouteService")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Vehicle", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
     public enum Vehicle : int
     {
         
@@ -375,7 +375,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="RouteSegment", Namespace="http://schemas.datacontract.org/2004/07/Models.OpenRouteService")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RouteSegment", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
     public partial class RouteSegment : object
     {
         
@@ -486,7 +486,7 @@ namespace RoutingService.ProxyCacheService
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Step.InstructionType", Namespace="http://schemas.datacontract.org/2004/07/Models.OpenRouteService")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Step.InstructionType", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
     public enum StepInstructionType : int
     {
         
@@ -531,11 +531,14 @@ namespace RoutingService.ProxyCacheService
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         KeepRight = 13,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChangeVehicle = 14,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Availabilities", Namespace="http://schemas.datacontract.org/2004/07/Models.JCDecaux")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Availabilities", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
     public partial class Availabilities : object
     {
         
