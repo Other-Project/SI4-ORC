@@ -52,6 +52,10 @@ export class LocationInput extends HTMLElement {
         });
     }
 
+    setLocation(location) {
+        this.input.value = location;
+    }
+
     #updateComponents() {
         if (!this.root) return;
 
@@ -89,7 +93,7 @@ export class LocationInput extends HTMLElement {
     }
 
     #selectSuggestion(suggestion) {
-        this.input.value = suggestion.properties.label;
+        this.setLocation(suggestion.properties.label);
         document.dispatchEvent(new CustomEvent("valueChanged", {
             detail: {
                 fieldName: this["name"],
@@ -99,7 +103,6 @@ export class LocationInput extends HTMLElement {
                 }
             }
         }));
-
         this.#clearSuggestions();
     }
 

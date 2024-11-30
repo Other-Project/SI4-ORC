@@ -15,7 +15,7 @@
         border: none;
     }
 
-    #invert {
+    #invertBtn {
         width: 20px;
         height: 20px;
         background: none;
@@ -56,9 +56,9 @@
 </style>
 <div id="panel">
     <div>
-        <location-input name="start" display_name="Départ"></location-input>
-        <button id="invert"><img src="/assets/icons/invert.png" alt="Inverser"></button>
-        <location-input name="end" display_name="Arrivée"></location-input>
+        <location-input id="startInput" name="start" display_name="Départ"></location-input>
+        <button id="invertBtn"><img src="/assets/icons/invert.png" alt="Inverser"></button>
+        <location-input id="endInput" name="end" display_name="Arrivée"></location-input>
         <button id="sendBtn">Valider</button>
     </div>
     <div id="instructions"></div>
