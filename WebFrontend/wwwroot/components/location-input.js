@@ -2,10 +2,16 @@ const FRENCH_ADDRESS_API = "https://api-adresse.data.gouv.fr/search/";
 const ORS_ADDRESS_API = "https://api.openrouteservice.org/geocode/autocomplete?api_key=5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c";
 
 let currentPosition;
-if ("geolocation" in navigator) {
-    await updateGeoLoc();
-    setInterval(async () => await updateGeoLoc(), 15000);
-} else console.warn("No geolocation service");
+if ("geolocation" in navigator)
+    (async () => {
+        try {
+            await updateGeoLoc();
+            setInterval(async () => await updateGeoLoc(), 15000);
+        } catch (e) {
+            console.log(e);
+        }
+    })().then();
+else console.warn("No geolocation service");
 
 async function updateGeoLoc() {
     const pos = await new Promise((resolve, reject) => {
@@ -137,6 +143,6 @@ export class LocationInput extends HTMLElement {
             option.onmousedown = e => e.preventDefault();
             this.datalist.appendChild(option);
         }
-        this.datalist.classList.remove("hide");
+        if (data && data.length > 0) this.datalist.classList.remove("hide");
     }
 }
