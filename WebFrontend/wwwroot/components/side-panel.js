@@ -41,6 +41,7 @@ export class SidePanel extends HTMLElement {
             .then(async text => {
                 shadow.innerHTML = text;
                 this.sendBtn = shadow.getElementById("sendBtn");
+                this.invertBtn = shadow.getElementById("invert");
                 this.instructionsDiv = shadow.getElementById("instructions");
                 this.#setupComponents();
             });
@@ -95,6 +96,10 @@ export class SidePanel extends HTMLElement {
                     end: this["end"],
                 }
             }));
+        });
+
+        this.invertBtn.addEventListener("click", () => {
+
         });
     }
 

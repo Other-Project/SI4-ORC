@@ -12,8 +12,26 @@
     }
 
     button {
-        background: #2da82d;
         border: none;
+    }
+
+    #invert {
+        width: 20px;
+        height: 20px;
+        background: none;
+        padding: 0;
+        margin-left: 27px;
+
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    #sendBtn {
+        width: 100%;
+        margin-top: 1em;
+        background: #2da82d;
         border-radius: 10px;
         padding: .5em;
         color: white;
@@ -22,23 +40,26 @@
 
     #instructions {
         overflow-y: auto;
-    }
 
-    #instructions:empty {
-        display: none;
-    }
+        &:empty {
+            display: none;
+        }
 
-    #instructions > * {
-        display: block;
-    }
+        & > * {
+            display: block;
 
-    #instructions > :not(:last-child) {
-        border-bottom: 1px solid lightgray;
+            &:not(:last-child) {
+                border-bottom: 1px solid lightgray;
+            }
+        }
     }
 </style>
 <div id="panel">
-    <location-input name="start" display_name="Départ"></location-input>
-    <location-input name="end" display_name="Arrivée"></location-input>
-    <button id="sendBtn">Valider</button>
+    <div>
+        <location-input name="start" display_name="Départ"></location-input>
+        <button id="invert"><img src="/assets/icons/invert.png" alt="Inverser"></button>
+        <location-input name="end" display_name="Arrivée"></location-input>
+        <button id="sendBtn">Valider</button>
+    </div>
     <div id="instructions"></div>
 </div>
