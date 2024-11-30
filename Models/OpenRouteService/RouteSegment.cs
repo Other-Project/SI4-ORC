@@ -1,14 +1,14 @@
-﻿using PolylineEncoder.Net.Models;
+﻿using Models.JCDecaux;
 
-namespace RoutingService.OpenRouteService;
+namespace Models.OpenRouteService;
 
 public class RouteSegment
 {
     public string RoadName { get; set; } = "";
-    public OrsClient.Vehicle Vehicle { get; set; }
+    public Vehicle Vehicle { get; set; }
     public string InstructionText { get; set; } = "";
     public Step.InstructionType InstructionType { get; set; }
     public double Distance { get; set; }
     public double Duration { get; set; }
-    public IGeoCoordinate[] Points { get; set; } = [];
+    public Position[] Points { get; set; } = [];
 }

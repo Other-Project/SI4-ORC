@@ -1,7 +1,8 @@
 using System.Text.Json;
+using Models.JCDecaux;
 using GeoCoordinate = GeoCoordinatePortable.GeoCoordinate;
 
-namespace RoutingService.JCDecaux;
+namespace RoutingService;
 
 public class JcDecauxClient(HttpClient client)
 {
@@ -23,7 +24,7 @@ public class JcDecauxClient(HttpClient client)
             await client.GetStreamAsync($"{ApiUrl}/stations?apiKey={ApiKey}")) ?? [];
 
     public async Task<Station?> FindNearestStation(GeoCoordinate coordinate) =>
-       (await RetrieveStationsAsync())?.MinBy(s => coordinate.GetDistanceTo(s.Position));
+        (await RetrieveStationsAsync()).MinBy(s => coordinate.GetDistanceTo(s.Position));
 
     public async Task<Station?> FindNearestStation(GeoCoordinate coordinate, string contractName) =>
         (await RetrieveStationsAsync(contractName))?.MinBy(s => coordinate.GetDistanceTo(s.Position));

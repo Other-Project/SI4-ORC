@@ -2,9 +2,11 @@
 using System.Text.Json;
 using GeoCoordinatePortable;
 using Microsoft.OpenApi.Extensions;
+using Models.JCDecaux;
+using Models.OpenRouteService;
 using PolylineEncoder.Net.Utility.Decoders;
 
-namespace RoutingService.OpenRouteService;
+namespace RoutingService;
 
 public class OrsClient(HttpClient client)
 {
@@ -47,7 +49,10 @@ public class OrsClient(HttpClient client)
         var stepsElement = response.RootElement.GetProperty("routes")[0].GetProperty("segments")[0].GetProperty("steps");
         var waypointsElement = response.RootElement.GetProperty("routes")[0].GetProperty("geometry");
         var steps = stepsElement.EnumerateArray().Select(step => step.Deserialize<Step>()!).ToList();
-        var waypoints = new Decoder().Decode(waypointsElement.GetString()).ToArray();
+        var waypoints = new Decoder()
+            .Decode(waypointsElement.GetString())
+            .Select(w => new Position { Longitude = w.Longitude, Latitude = w.Latitude })
+            .ToArray();
 
         var result = steps.Select(step => new RouteSegment
         {
@@ -61,19 +66,5 @@ public class OrsClient(HttpClient client)
         }).ToList();
 
         return result;
-    }
-
-    public enum Vehicle
-    {
-        [EnumMember(Value = "driving-car")] DrivingCar,
-        ///<summary>Heavy goods vehicle</summary>
-        [EnumMember(Value = "driving-hgv")] DrivingHgv,
-        [EnumMember(Value = "cycling-regular")] CyclingRegular,
-        [EnumMember(Value = "cycling-road")] CyclingRoad,
-        [EnumMember(Value = "cycling-mountain")] CyclingMountain,
-        [EnumMember(Value = "cycling-electric")] CyclingElectric,
-        [EnumMember(Value = "foot-walking")] FootWalking,
-        [EnumMember(Value = "foot-hiking")] FootHiking,
-        [EnumMember(Value = "wheelchair")] Wheelchair
     }
 }

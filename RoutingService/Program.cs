@@ -1,7 +1,4 @@
-﻿using RoutingService.JCDecaux;
-using RoutingService.OpenRouteService;
-
-var builder = WebApplication.CreateBuilder();
+﻿var builder = WebApplication.CreateBuilder();
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
     options.AllowSynchronousIO = true; // Note only needed now if using Streamed transfer mode, can probably remove

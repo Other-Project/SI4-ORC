@@ -8,27 +8,24 @@ public class GenericProxyCache<T>
 
     private IObjectGetter<T> ObjectGetter { get; set; }
 
-    public T? Get(string cacheItemName) => Get(cacheItemName, DtDefault);
+    public Task<T> GetAsync(string cacheItemName) => GetAsync(cacheItemName, DtDefault);
 
-    public T? Get(string cacheItemName, double dtSeconds) => Get(cacheItemName,
-        new DateTimeOffset(DateTime.Now, TimeSpan.FromSeconds(dtSeconds)));
+    public Task<T> GetAsync(string cacheItemName, double dtSeconds) => GetAsync(cacheItemName, new DateTimeOffset(DateTime.Now, TimeSpan.FromSeconds(dtSeconds)));
 
-    public T? Get(string cacheItemName, DateTimeOffset dt)
+    public async Task<T> GetAsync(string cacheItemName, DateTimeOffset dt)
     {
         if (Cache.TryGetValue(cacheItemName, out var objCache) && objCache.Expiry > DateTimeOffset.Now)
             return objCache.Value;
-        var item = ObjectGetter.GetObject(cacheItemName);
+        var item = await ObjectGetter.GetObjectAsync(cacheItemName);
         Cache[cacheItemName] = new ObjectCache<T>(item, dt);
         return item;
     }
 }
-
-internal record ObjectCache<T>(T? Value, DateTimeOffset Expiry)
+internal record ObjectCache<T>(T Value, DateTimeOffset Expiry)
 {
     public static DateTimeOffset InfiniteAbsoluteExpiration => DateTimeOffset.MaxValue;
 }
-
-public interface IObjectGetter<out T>
+public interface IObjectGetter<T>
 {
-    T GetObject(string itemName);
+    Task<T> GetObjectAsync(string itemName);
 }

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace RoutingService.JCDecaux;
+namespace Models.JCDecaux;
 
 public class Availabilities
 {

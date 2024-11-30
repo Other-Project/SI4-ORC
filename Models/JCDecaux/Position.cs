@@ -1,10 +1,9 @@
 using System.Text.Json.Serialization;
-using PolylineEncoder.Net.Models;
 using GeoCoordinate = GeoCoordinatePortable.GeoCoordinate;
 
-namespace RoutingService.JCDecaux;
+namespace Models.JCDecaux;
 
-public class Position : IGeoCoordinate
+public class Position
 {
     [JsonPropertyName("latitude")] public double Latitude { get; set; }
     [JsonPropertyName("longitude")] public double Longitude { get; set; }

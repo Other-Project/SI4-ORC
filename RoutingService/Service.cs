@@ -1,9 +1,8 @@
 using System.Text.Json;
-using GeoCoordinatePortable;
-using RoutingService.JCDecaux;
-using RoutingService.OpenRouteService;
 using Apache.NMS;
 using Apache.NMS.ActiveMQ;
+using GeoCoordinatePortable;
+using Models.OpenRouteService;
 using ISession = Apache.NMS.ISession;
 
 namespace RoutingService;
@@ -26,7 +25,7 @@ public class Service : IService
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();
-            var name = "route--" + System.Guid.NewGuid();
+            var name = "route--" + Guid.NewGuid();
             var destination = await session.GetQueueAsync(name);
             var producer = await session.CreateProducerAsync(destination);
             producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
@@ -47,7 +46,7 @@ public class Service : IService
                 {
                     await Task.Delay(2000);
                     await session.DeleteDestinationAsync(destination);
-                    
+
                     // Don't forget to close your session and connection when finished.
                     await session.CloseAsync();
                     await connection.CloseAsync();
@@ -71,16 +70,16 @@ public class Service : IService
 
         var straightDistance = start.GetDistanceTo(end);
         var walkedDistance = start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position);
-        
+
         IEnumerable<RouteSegment> route;
         if (walkedDistance > MaxWalkedDistance)
-            route = await _orsClient.GetRoute(start, end, OrsClient.Vehicle.DrivingCar);
+            route = await _orsClient.GetRoute(start, end, Vehicle.DrivingCar);
         else if (straightDistance <= walkedDistance)
-            route = await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking);
+            route = await _orsClient.GetRoute(start, end, Vehicle.FootWalking);
         else
-            route = (await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking))
+            route = (await _orsClient.GetRoute(start, startStation.Position, Vehicle.FootWalking))
                 .Concat(await _orsClient.GetRoute(startStation.Position, endStation.Position))
-                .Concat(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking));
+                .Concat(await _orsClient.GetRoute(endStation.Position, end, Vehicle.FootWalking));
 
         await AddRouteSegments(route, producer, session);
     }
