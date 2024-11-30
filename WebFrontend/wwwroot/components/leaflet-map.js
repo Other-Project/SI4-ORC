@@ -93,6 +93,7 @@ export class LeafletMap extends HTMLDivElement {
 
     async #addSegment(segment) {
         let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
+        if (!points || points.length === 0) return;
         let color = typeColor[segment["Vehicle"]];
         L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
         new LeafCircle(points[0], {
