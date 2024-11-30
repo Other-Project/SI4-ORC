@@ -41,7 +41,10 @@ export class SidePanel extends HTMLElement {
             .then(stream => stream.text())
             .then(async text => {
                 shadow.innerHTML = text;
+                this.startInput = shadow.getElementById("startInput");
+                this.endInput = shadow.getElementById("endInput");
                 this.sendBtn = shadow.getElementById("sendBtn");
+                this.invertBtn = shadow.getElementById("invertBtn");
                 this.instructionsDiv = shadow.getElementById("instructions");
                 this.#setupComponents();
             });
@@ -51,14 +54,9 @@ export class SidePanel extends HTMLElement {
             this[ev.detail.fieldName] = ev.detail.value;
         });
 
-        document.addEventListener("instructionAdded", ev => {
-            this.addInstructions(ev.detail);
-        });
-
-        document.addEventListener("instructionsReset", () => {
-            this.resetInstructions();
-        });
-        setInterval(() => this.#nextInstruction(), 200);
+        document.addEventListener("instructionAdded", ev => this.addInstructions(ev.detail));
+        document.addEventListener("instructionsReset", () => this.resetInstructions());
+        setInterval(() => this.#nextInstruction(), 3000);
     }
 
     addInstructions(instruction) {
@@ -97,6 +95,14 @@ export class SidePanel extends HTMLElement {
                     end: this["end"],
                 }
             }));
+        });
+
+        this.invertBtn.addEventListener("click", () => {
+            let tmp = this["start"];
+            this["start"] = this["end"];
+            this["end"] = tmp;
+            this.startInput.setLocation(this["start"].label);
+            this.endInput.setLocation(this["end"].label);
         });
     }
 
