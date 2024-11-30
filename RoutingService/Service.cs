@@ -10,14 +10,14 @@ namespace RoutingService;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class Service : IService
 {
+    public static Uri? ActiveMqUri { get; set; }
     public static double MaxWalkedDistance { get; set; }
 
     public async Task<string?> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
     {
         try
         {
-            var connecturi = new Uri("tcp://localhost:61616?wireFormat.maxInactivityDuration=0");
-            var connectionFactory = new ConnectionFactory(connecturi);
+            var connectionFactory = new ConnectionFactory(ActiveMqUri);
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();

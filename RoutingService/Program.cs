@@ -11,6 +11,7 @@ builder.Services.AddServiceModelWebServices();
 builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
 
 Service.MaxWalkedDistance = builder.Configuration.GetValue<double?>("MaxWalkedDistance") ?? 10000;
+Service.ActiveMqUri = Uri.TryCreate(builder.Configuration.GetValue<string>("ActiveMqUri"), UriKind.Absolute, out var uri) ? uri : null;
 
 var app = builder.Build();
 app.UseCors(policyBuilder => policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
