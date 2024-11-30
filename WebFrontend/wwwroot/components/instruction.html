@@ -1,7 +1,7 @@
 <style>
     .instruction {
         display: grid;
-        grid-template: auto 1fr / 75px 1fr;
+        grid-template: auto 1fr 25px / 75px 1fr 25px;
         gap: 10px;
         min-height: 75px;
         padding: 15px;
@@ -13,14 +13,26 @@
     }
 
     .instruction-icon {
-        grid-row: 1 / span 2;
+        grid-row: 1 / span 3;
         max-width: 100%;
         max-height: 100%;
         text-align: center;
     }
 
+    .instruction-text {
+        grid-column: 2 / span 2;
+    }
+
     .instruction-distance {
         margin: 0;
+        grid-row: 2 / span 2;
+    }
+
+    .instruction-vehicle {
+        grid-column: 3;
+        grid-row: 3;
+        width: 25px;
+        height: 25px;
     }
 </style>
 
@@ -28,4 +40,5 @@
     <img src="" class="instruction-icon" alt="icon"/>
     <strong class="instruction-text"></strong>
     <p class="instruction-distance"></p>
+    <img src="" class="instruction-vehicle" alt="vehicle"/>
 </div>

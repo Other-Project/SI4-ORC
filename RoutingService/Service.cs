@@ -1,9 +1,8 @@
 using System.Text.Json;
-using GeoCoordinatePortable;
-using RoutingService.JCDecaux;
-using RoutingService.OpenRouteService;
 using Apache.NMS;
 using Apache.NMS.ActiveMQ;
+using GeoCoordinatePortable;
+using RoutingService.ProxyCacheService;
 using ISession = Apache.NMS.ISession;
 
 namespace RoutingService;
@@ -11,9 +10,8 @@ namespace RoutingService;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class Service : IService
 {
-    private static readonly HttpClient Client = new();
-    private readonly JcDecauxClient _jcDecauxClient = new(Client);
-    private readonly OrsClient _orsClient = new(Client);
+    public static Uri? ActiveMqUri { get; set; }
+    public static double MaxWalkedDistance { get; set; }
 
     private static bool _shouldWait = true;
 
@@ -23,12 +21,10 @@ public class Service : IService
     {
         try
         {
-            var connecturi = new Uri("tcp://localhost:61616?wireFormat.maxInactivityDuration=0");
-            var connectionFactory = new ConnectionFactory(connecturi);
+            var connectionFactory = new ConnectionFactory(ActiveMqUri);
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();
-
             var name = "route--" + Guid.NewGuid();
             var destination = await session.GetQueueAsync(name);
             var producer = await session.CreateProducerAsync(destination);
@@ -59,6 +55,9 @@ public class Service : IService
                 }
                 finally
                 {
+                    await Task.Delay(2000);
+                    await session.DeleteDestinationAsync(destination);
+
                     // Don't forget to close your session and connection when finished.
                     await session.CloseAsync();
                     await connection.CloseAsync();
@@ -73,30 +72,31 @@ public class Service : IService
         }
     }
 
-    private async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
-        ISession session)
+    private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer, ISession session)
     {
-        await _jcDecauxClient.RetrieveContractsAsync();
-        await _jcDecauxClient.RetrieveStationsAsync();
-        var startStation = _jcDecauxClient.FindNearestStation(start);
+        var proxyCacheClient = new ProxyCacheServiceClient();
+
+        var startStation = (await proxyCacheClient.GetStationsAsync()).MinBy(s => start.GetDistanceTo(s.Position));
         if (startStation is null) return;
-        var endStation = _jcDecauxClient.FindNearestStation(end);
+        var endStation = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.MinBy(s => end.GetDistanceTo(s.Position));
         if (endStation is null) return;
 
-        if (start.GetDistanceTo(end) <=
-            start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position))
-        {
-            await AddRouteSegments(await _orsClient.GetRoute(start, end, OrsClient.Vehicle.FootWalking), producer,
-                session);
-            return;
-        }
+        var straightDistance = start.GetDistanceTo(end);
+        var walkedDistance = start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position);
 
-        await AddRouteSegments(await _orsClient.GetRoute(start, startStation.Position, OrsClient.Vehicle.FootWalking),
-            producer, session);
-        await AddRouteSegments(await _orsClient.GetRoute(startStation.Position, endStation.Position), producer,
-            session);
-        await AddRouteSegments(await _orsClient.GetRoute(endStation.Position, end, OrsClient.Vehicle.FootWalking),
-            producer, session);
+        IEnumerable<RouteSegment> route;
+        if (walkedDistance > MaxWalkedDistance)
+            route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.DrivingCar);
+        else if (straightDistance <= walkedDistance)
+            route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.FootWalking);
+        else
+            route = (await proxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position, Vehicle.FootWalking))
+                .Append(new RouteSegment { InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.FootWalking, Points = [] })
+                .Concat(await proxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position, Vehicle.CyclingRegular))
+                .Append(new RouteSegment { InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.CyclingRegular, Points = [] })
+                .Concat(await proxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
+
+        await AddRouteSegments(route, producer, session);
     }
 
     private static async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,

@@ -1,7 +1,7 @@
 export class Instruction extends HTMLElement {
     // noinspection JSUnusedGlobalSymbols
     static get observedAttributes() {
-        return ["label", "type", "dist", "active"];
+        return ["label", "type", "dist", "vehicle", "active"];
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -22,6 +22,7 @@ export class Instruction extends HTMLElement {
                 this.icon = shadow.querySelector(".instruction-icon");
                 this.displayText = shadow.querySelector(".instruction-text");
                 this.distance = shadow.querySelector(".instruction-distance");
+                this.vehicleIcon = shadow.querySelector(".instruction-vehicle");
                 this.#updateComponents();
             });
     }
@@ -32,6 +33,7 @@ export class Instruction extends HTMLElement {
         this.icon.src = this.type ? "/assets/icons/steps/" + this["type"] + ".png" : "";
         this.displayText.innerText = this["label"] ?? "";
         this.distance.innerText = this.#distanceToString(this["dist"]) ?? "";
+        this.vehicleIcon.src = this.type ? "/assets/icons/vehicle/" + this["vehicle"] + ".png" : "";
     }
 
     #distanceToString(dist) {

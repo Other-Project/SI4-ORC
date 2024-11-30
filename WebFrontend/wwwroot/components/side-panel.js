@@ -14,7 +14,19 @@ const ORS_STEP_TYPES = [
     "goal",
     "depart",
     "keep_left",
-    "keep_right"
+    "keep_right",
+    "change_vehicle"
+];
+const ORS_VEHICLE_TYPES = [
+    "car",
+    "car",
+    "bike",
+    "bike",
+    "bike",
+    "bike",
+    "foot",
+    "foot",
+    "foot"
 ];
 
 export class SidePanel extends HTMLElement {
@@ -56,6 +68,7 @@ export class SidePanel extends HTMLElement {
         instructionElement.setAttribute("label", instruction["InstructionText"]);
         instructionElement.setAttribute("type", ORS_STEP_TYPES[instruction["InstructionType"]]);
         instructionElement.setAttribute("dist", instruction["Distance"]);
+        instructionElement.setAttribute("vehicle", ORS_VEHICLE_TYPES[instruction["Vehicle"]]);
         this.instructionsDiv.appendChild(instructionElement);
         document.dispatchEvent(new CustomEvent("addSegment", {
             detail: {

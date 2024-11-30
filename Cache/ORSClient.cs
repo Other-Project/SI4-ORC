@@ -1,32 +1,27 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using GeoCoordinatePortable;
+using Cache.JCDecaux;
+using Cache.OpenRouteService;
 using Microsoft.OpenApi.Extensions;
 using PolylineEncoder.Net.Utility.Decoders;
 
-namespace RoutingService.OpenRouteService;
+namespace Cache;
 
-public class OrsClient(HttpClient client)
+public class OrsClient : IObjectGetter<List<RouteSegment>>
 {
     public static string ApiUrl { get; set; } = "https://api.openrouteservice.org/v2";
     public static string? ApiKey { get; set; }
 
+    private static readonly GenericProxyCache<List<RouteSegment>> RouteSegmentCache = new(new OrsClient());
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { IncludeFields = true };
 
-    public async Task<List<RouteSegment>> GetRoute(GeoCoordinate start, GeoCoordinate end, Vehicle vehicle = Vehicle.CyclingRegular)
+    public static async Task<List<RouteSegment>> GetRoute(Position start, Position end, Vehicle vehicle = Vehicle.CyclingRegular)
+        => await RouteSegmentCache.GetAsync(JsonSerializer.Serialize((start, end, vehicle), JsonSerializerOptions));
+
+    public async Task<List<RouteSegment>> GetObjectAsync(HttpClient client, string itemName)
     {
+        var (start, end, vehicle) = JsonSerializer.Deserialize<(Position, Position, Vehicle)>(itemName, JsonSerializerOptions);
         if (ApiKey == null) throw new InvalidOperationException("API Key not set");
-
-        /*https://api.openrouteservice.org/v2/directions/driving-car/json
-        var url = $"{ApiUrl}/directions/{vehicle.GetDisplayName()}/json;" +
-                  $"?api_key={ApiKey}&start={start.Longitude},{start.Latitude}&end={end.Longitude},{end.Latitude}";
-
-        await client.PostAsJsonAsync($"{ApiUrl}/contracts?apiKey={ApiKey}", new
-        {
-            coordinates = new double[][] { [start.Longitude, start.Latitude], [end.Longitude, end.Latitude] },
-            language = "fr",
-            roundabout_exits = true
-        });*/
-
 
         var request = new HttpRequestMessage
         {
@@ -47,7 +42,10 @@ public class OrsClient(HttpClient client)
         var stepsElement = response.RootElement.GetProperty("routes")[0].GetProperty("segments")[0].GetProperty("steps");
         var waypointsElement = response.RootElement.GetProperty("routes")[0].GetProperty("geometry");
         var steps = stepsElement.EnumerateArray().Select(step => step.Deserialize<Step>()!).ToList();
-        var waypoints = new Decoder().Decode(waypointsElement.GetString()).ToArray();
+        var waypoints = new Decoder()
+            .Decode(waypointsElement.GetString())
+            .Select(w => new Position { Longitude = w.Longitude, Latitude = w.Latitude })
+            .ToArray();
 
         var result = steps.Select(step => new RouteSegment
         {
@@ -61,18 +59,5 @@ public class OrsClient(HttpClient client)
         }).ToList();
 
         return result;
-    }
-
-    public enum Vehicle
-    {
-        [EnumMember(Value = "driving-car")] DrivingCar,
-        [EnumMember(Value = "driving-hgv")] DrivingHgv,
-        [EnumMember(Value = "cycling-regular")] CyclingRegular,
-        [EnumMember(Value = "cycling-road")] CyclingRoad,
-        [EnumMember(Value = "cycling-mountain")] CyclingMountain,
-        [EnumMember(Value = "cycling-electric")] CyclingElectric,
-        [EnumMember(Value = "foot-walking")] FootWalking,
-        [EnumMember(Value = "foot-hiking")] FootHiking,
-        [EnumMember(Value = "wheelchair")] Wheelchair
     }
 }

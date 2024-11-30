@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace RoutingService.JCDecaux;
+namespace Cache.JCDecaux;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
@@ -16,7 +16,7 @@ public class Station
 
     /// <summary>Le nom du contrat de cette station</summary>
     [JsonPropertyName("contractName")]
-    public string? ContractName { get; set; }
+    public string ContractName { get; set; } = null!;
 
     /// <summary>Le nom de la station</summary>
     [JsonPropertyName("name")]

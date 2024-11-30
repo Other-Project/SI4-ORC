@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RoutingService.OpenRouteService;
+namespace Cache.OpenRouteService;
 
 public class Step
 {
@@ -27,5 +27,7 @@ public class Step
         Depart = 11,
         KeepLeft = 12,
         KeepRight = 13,
+
+        ChangeVehicle = 14 // Special
     }
 }
