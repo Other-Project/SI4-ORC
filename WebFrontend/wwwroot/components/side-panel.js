@@ -109,6 +109,11 @@ export class SidePanel extends HTMLElement {
         let active = this.instructionsDiv.querySelector("[active=true]");
         if (!active) return;
         active.setAttribute("active", "false");
-        (active.nextElementSibling ?? this.instructionsDiv.firstElementChild)?.setAttribute("active", "true");
+        let newActive = active.nextElementSibling ?? this.instructionsDiv.firstElementChild;
+        newActive.setAttribute("active", "true");
+        this.instructionsDiv.scroll({
+            top: newActive.offsetTop - active.getBoundingClientRect().height, // so that the precedent instruction stays visible
+            behavior: "smooth"
+        });
     }
 }
