@@ -86,7 +86,8 @@ export class LeafletMap extends HTMLDivElement {
         if (!this.start || !this.end) return;
         L.marker(this.start.coords.toReversed(), {icon: greenIcon}).addTo(this.layer);
         L.marker(this.end.coords.toReversed(), {icon: redIcon}).addTo(this.layer);
-        this.map.fitBounds(this.layer.getBounds(), {paddingTopLeft: [425, 25], paddingBottomRight: [25, 25]});
+        let padding = window.innerWidth > 800 ? {paddingTopLeft: [425, 25], paddingBottomRight: [25, 25]} : undefined;
+        this.map.fitBounds(this.layer.getBounds(), padding);
     }
 
     async #resetMap() {
