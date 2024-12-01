@@ -39,6 +39,8 @@ public class OrsClient : IObjectGetter<List<RouteSegment>>
             }
         };
         var response = await JsonDocument.ParseAsync(await (await client.SendAsync(request)).Content.ReadAsStreamAsync());
+        if (response.RootElement.TryGetProperty("error", out var error))
+            throw new HttpRequestException(error.GetProperty("message").GetString());
         var stepsElement = response.RootElement.GetProperty("routes")[0].GetProperty("segments")[0].GetProperty("steps");
         var waypointsElement = response.RootElement.GetProperty("routes")[0].GetProperty("geometry");
         var steps = stepsElement.EnumerateArray().Select(step => step.Deserialize<Step>()!).ToList();
