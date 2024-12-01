@@ -1,0 +1,24 @@
+﻿.leaflet-container a {
+    color: var(--link);
+}
+
+.leaflet-container .leaflet-control-attribution {
+    background-color: var(--panel-bg);
+    color: var(--panel-fg);
+}
+
+.leaflet-bar a {
+    background-color: var(--panel-bg);
+    border-bottom-color: var(--secondary-bg);
+    color: var(--panel-fg);
+
+    &:hover {
+        background-color: var(--secondary-bg);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .leaflet-control-locate a .leaflet-control-locate-location-arrow {
+        filter: invert();
+    }
+}

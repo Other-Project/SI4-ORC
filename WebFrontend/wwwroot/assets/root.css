@@ -1,3 +1,12 @@
+:root {
+    color-scheme: light dark;
+    --panel-bg: light-dark(#f2f2f2, #2e3437);
+    --panel-fg: light-dark(#333, #eee);
+    --secondary-bg: light-dark(white, #4a5259);
+    --secondary-fg: light-dark(#eee, #333);
+    --link: light-dark(#0078a8, #53bde8);
+}
+
 body {
     margin: 0;
 }

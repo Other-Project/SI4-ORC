@@ -49,6 +49,10 @@ export class LeafletMap extends HTMLDivElement {
         style.href = "/node_modules/leaflet.locatecontrol/dist/L.Control.Locate.css";
         style.rel = "stylesheet";
         shadow.appendChild(style);
+        style = document.createElement("link");
+        style.href = "/components/leaflet-map.css";
+        style.rel = "stylesheet";
+        shadow.appendChild(style);
 
         let mapDiv = document.createElement("div");
         mapDiv.style.height = "100%";
@@ -82,7 +86,7 @@ export class LeafletMap extends HTMLDivElement {
         if (!this.start || !this.end) return;
         L.marker(this.start.coords.toReversed(), {icon: greenIcon}).addTo(this.layer);
         L.marker(this.end.coords.toReversed(), {icon: redIcon}).addTo(this.layer);
-        this.map.fitBounds(this.layer.getBounds());
+        this.map.fitBounds(this.layer.getBounds(), {paddingTopLeft: [425, 25], paddingBottomRight: [25, 25]});
     }
 
     async #resetMap() {
@@ -93,6 +97,7 @@ export class LeafletMap extends HTMLDivElement {
 
     async #addSegment(segment) {
         let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
+        if (!points || points.length === 0) return;
         let color = typeColor[segment["Vehicle"]];
         L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
         new LeafCircle(points[0], {

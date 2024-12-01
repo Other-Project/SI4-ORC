@@ -8,13 +8,13 @@
 
 label {
     font-size: 1.2em;
-    color: #333;
+    color: var(--panel-fg);
 }
 
 input {
-    background-color: white;
+    background-color: var(--secondary-bg);
     padding: 5px;
-    border: 1px solid lightgray;
+    border: 1px solid var(--secondary-fg);
     border-radius: 5px;
     width: calc(100% - 12px);
 }
@@ -25,9 +25,9 @@ input {
 }
 
 .suggestions {
-    border: 1px solid lightgray;
+    border: 1px solid var(--secondary-fg);
     border-radius: 5px;
-    background: white;
+    background: var(--secondary-bg);
     padding: 1px;
     margin: 0;
 
