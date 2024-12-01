@@ -61,6 +61,19 @@
             }
         }
     }
+
+    #info {
+        display: grid;
+        grid-template: 1fr / 1fr 1fr;
+
+        &.hidden {
+            display: none;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
 </style>
 <div id="panel">
     <div>
@@ -68,6 +81,10 @@
         <button id="invertBtn"><img src="/assets/icons/invert.png" alt="Inverser"></button>
         <location-input id="endInput" name="end" display_name="Arrivée"></location-input>
         <button id="sendBtn">Valider</button>
+    </div>
+    <div id="info" class="hidden">
+        <p>Durée : <span id="duration"></span></p>
+        <p>Distance : <span id="distance"></span></p>
     </div>
     <div id="instructions"></div>
 </div>
