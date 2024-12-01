@@ -5,6 +5,7 @@
     --secondary-bg: light-dark(white, #4a5259);
     --secondary-fg: light-dark(#eee, #333);
     --link: light-dark(#0078a8, #53bde8);
+    --active-instruction: light-dark(#0001, #fff1);
 }
 
 body {
