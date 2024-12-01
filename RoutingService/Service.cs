@@ -60,13 +60,16 @@ public class Service : IService
         }
     }
 
+    private static bool StationHasBikes(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Bikes: > 0 };
+    private static bool StationHasStands(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Stands: > 0 };
+
     private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer, ISession session)
     {
         var proxyCacheClient = new ProxyCacheServiceClient();
 
-        var startStation = (await proxyCacheClient.GetStationsAsync()).MinBy(s => start.GetDistanceTo(s.Position));
+        var startStation = (await proxyCacheClient.GetStationsAsync())?.Where(StationHasBikes).MinBy(s => start.GetDistanceTo(s.Position));
         if (startStation is null) return;
-        var endStation = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.MinBy(s => end.GetDistanceTo(s.Position));
+        var endStation = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.Where(StationHasStands).MinBy(s => end.GetDistanceTo(s.Position));
         if (endStation is null) return;
 
         var straightDistance = start.GetDistanceTo(end);
