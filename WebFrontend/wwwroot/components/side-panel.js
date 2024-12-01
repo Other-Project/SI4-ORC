@@ -80,6 +80,7 @@ export class SidePanel extends HTMLElement {
         this.instructions = [];
         this.compteur = 0;
         document.dispatchEvent(new CustomEvent("resetMap"));
+        document.dispatchEvent(new CustomEvent("hidePopup"));
     }
 
     #setupComponents() {

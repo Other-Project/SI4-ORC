@@ -16,7 +16,14 @@ export class ActiveMQ {
             this.client = Stomp.client(this.url);
             this.client.connect(this.login, this.passcode, () => {
                 this.client.subscribe(destination, (message) => {
-                    document.dispatchEvent(new CustomEvent("instructionAdded", {detail: JSON.parse(message.body)}));
+                    const parsedMessage = JSON.parse(message.body);
+                    const tag = message.headers["tag"];
+                    if (tag) {
+                        console.log("Received message with tag : ", tag);
+                        document.dispatchEvent(new CustomEvent("popupMessage", {detail: parsedMessage}));
+                        return;
+                    }
+                    document.dispatchEvent(new CustomEvent("instructionAdded", {detail: parsedMessage}));
                 });
             });
         }

@@ -14,7 +14,7 @@ export class RoutingService {
     async getRoute(start, end) {
         if (this.isLastRoute(start, end)) return;
 
-        let url = `http://localhost:5001/web/route?startLon=${start[0]}&startLat=${start[1]}&endLon=${end[0]}&endLat=${end[1]}`;
+        let url = `http://localhost:5001/web/route?startLon=${start[0]}&startLat=${start[1]}&endLon=${end[0]}&endLat=${end[1]}&index=0`;
         const queueName = (await (await fetch(url)).json())["CalculateRouteResult"];
         const receiveQueueName = queueName["Item1"];
         this.sendQueueName = queueName["Item2"];

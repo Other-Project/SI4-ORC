@@ -15,9 +15,15 @@ public class Service : IService
 
     private static bool _shouldWait = true;
 
+    private static Random _random = new Random();
+
+    private static string[] _tags =
+    [
+        "De la pluie est prévue ", "Accident ", "Travaux ", "Bouchon", "Attention, vous allez trop vite !", "Probleme"
+    ];
+
     public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat,
-        double endLon,
-        double endLat)
+        double endLon, double endLat, int index)
     {
         try
         {
@@ -25,13 +31,13 @@ public class Service : IService
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();
-            var name = "route--" + Guid.NewGuid();
-            var receiveQueueName = await session.GetQueueAsync(name);
-            var producer = await session.CreateProducerAsync(receiveQueueName);
+            var receiveQueueName = "route--" + Guid.NewGuid();
+            var receiveQueue = await session.GetQueueAsync(receiveQueueName);
+            var producer = await session.CreateProducerAsync(receiveQueue);
 
-            var nameQueue2 = "route--" + Guid.NewGuid();
-            var sendingQueueName = await session.GetQueueAsync(nameQueue2);
-            var consumer = await session.CreateConsumerAsync(sendingQueueName);
+            var sendingQueueName = "route--" + Guid.NewGuid();
+            var sendingQueue = await session.GetQueueAsync(sendingQueueName);
+            var consumer = await session.CreateConsumerAsync(sendingQueue);
             consumer.Listener += message =>
             {
                 if (message is not ITextMessage) return;
@@ -45,7 +51,7 @@ public class Service : IService
                 {
                     var start = new GeoCoordinate(startLat, startLon);
                     var end = new GeoCoordinate(endLat, endLon);
-                    await CalculateRoute(start, end, producer, session);
+                    await CalculateRoute(start, end, producer, session, index);
                 }
                 catch (Exception e)
                 {
@@ -54,16 +60,16 @@ public class Service : IService
                 finally
                 {
                     await Task.Delay(2000);
-                    await session.DeleteDestinationAsync(receiveQueueName);
-                    await session.DeleteDestinationAsync(sendingQueueName);
-                    
+                    await session.DeleteDestinationAsync(receiveQueue);
+                    await session.DeleteDestinationAsync(sendingQueue);
+
                     // Don't forget to close your session and connection when finished.
                     await session.CloseAsync();
                     await connection.CloseAsync();
                     await consumer.CloseAsync();
                 }
             });
-            return (receiveQueueName.QueueName, sendingQueueName.QueueName);
+            return (receiveQueue.QueueName, sendingQueue.QueueName);
         }
         catch (Exception e)
         {
@@ -72,13 +78,19 @@ public class Service : IService
         }
     }
 
-    private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer, ISession session)
+    private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
+        ISession session, int index)
     {
         var proxyCacheClient = new ProxyCacheServiceClient();
 
         var startStation = (await proxyCacheClient.GetStationsAsync()).MinBy(s => start.GetDistanceTo(s.Position));
         if (startStation is null) return;
-        var endStation = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.MinBy(s => end.GetDistanceTo(s.Position));
+        var endStationList = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?
+            .OrderBy(s =>
+                end.GetDistanceTo(s.Position)).ToList();
+        var endStation = endStationList?[index];
+
+        //(await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.MinBy(s =>end.GetDistanceTo(s.Position));
         if (endStation is null) return;
 
         var straightDistance = start.GetDistanceTo(end);
@@ -90,11 +102,22 @@ public class Service : IService
         else if (straightDistance <= walkedDistance)
             route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.FootWalking);
         else
-            route = (await proxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position, Vehicle.FootWalking))
-                .Append(new RouteSegment { InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.FootWalking, Points = [] })
-                .Concat(await proxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position, Vehicle.CyclingRegular))
-                .Append(new RouteSegment { InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle, Vehicle = Vehicle.CyclingRegular, Points = [] })
-                .Concat(await proxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
+            route = (await proxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position,
+                    Vehicle.FootWalking))
+                .Append(new RouteSegment
+                {
+                    InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    Vehicle = Vehicle.FootWalking, Points = []
+                })
+                .Concat(await proxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position,
+                    Vehicle.CyclingRegular))
+                .Append(new RouteSegment
+                {
+                    InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    Vehicle = Vehicle.CyclingRegular, Points = []
+                })
+                .Concat(
+                    await proxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
 
         await AddRouteSegments(route, producer, session);
     }
@@ -110,10 +133,22 @@ public class Service : IService
             while (_shouldWait)
             {
                 await Task.Delay(500);
-                //Console.WriteLine("In the while loop");
             }
 
+            await TrySendPopUp(producer, session);
             _shouldWait = true;
+        }
+    }
+
+    private static async Task TrySendPopUp(IMessageProducer producer, ISession session)
+    {
+        if (_random.Next(0, 2) == 0)
+        {
+            var value = _random.Next(0, _tags.Length);
+            var messagePopUp = _tags[value]; // + (value <= 3 ? segment.RoadName : "");
+            var message = await session.CreateTextMessageAsync(JsonSerializer.Serialize(messagePopUp));
+            message.Properties.SetString("tag", "popup");
+            await producer.SendAsync(message);
         }
     }
 }
