@@ -125,6 +125,18 @@ export class LocationInput extends HTMLElement {
                 }
             });
 
+        if (/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/.test(searchValue)) {
+            let [lat, long] = searchValue.split(",").map(s => s.trim());
+            result.push({
+                properties: {
+                    label: `Position GPS (${lat}, ${long})`
+                },
+                geometry: {
+                    coordinates: [long, lat]
+                }
+            });
+        }
+
         if (searchValue.length >= 3) { // The api won't respond if len < 3
             let url = await this.#addressCompletionApiUrl(searchValue);
             let response = await (await fetch(url)).json();
