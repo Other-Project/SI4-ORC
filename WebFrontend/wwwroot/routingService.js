@@ -24,6 +24,7 @@ export class RoutingService {
     }
 
     async sendMessage(message) {
+        console.log("sending message : ", message);
         await this.activemq.sendTo(this.sendQueueName, message);
     }
 }

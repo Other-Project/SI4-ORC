@@ -26,18 +26,16 @@ public class Service : IService
             await connection.StartAsync();
             var session = await connection.CreateSessionAsync();
             var name = "route--" + Guid.NewGuid();
-            var destination = await session.GetQueueAsync(name);
-            var producer = await session.CreateProducerAsync(destination);
+            var receiveQueueName = await session.GetQueueAsync(name);
+            var producer = await session.CreateProducerAsync(receiveQueueName);
 
             var nameQueue2 = "route--" + Guid.NewGuid();
-            var destination2 = await session.GetQueueAsync(nameQueue2);
-            var consumer = await session.CreateConsumerAsync(destination2);
+            var sendingQueueName = await session.GetQueueAsync(nameQueue2);
+            var consumer = await session.CreateConsumerAsync(sendingQueueName);
             consumer.Listener += message =>
             {
                 if (message is not ITextMessage) return;
                 _shouldWait = false;
-                Console.WriteLine("I'm in the listener");
-                Console.WriteLine(message);
             };
             producer.DeliveryMode = MsgDeliveryMode.NonPersistent;
 
@@ -56,14 +54,16 @@ public class Service : IService
                 finally
                 {
                     await Task.Delay(2000);
-                    await session.DeleteDestinationAsync(destination);
-
+                    await session.DeleteDestinationAsync(receiveQueueName);
+                    await session.DeleteDestinationAsync(sendingQueueName);
+                    
                     // Don't forget to close your session and connection when finished.
                     await session.CloseAsync();
                     await connection.CloseAsync();
+                    await consumer.CloseAsync();
                 }
             });
-            return (destination.QueueName, destination2.QueueName);
+            return (receiveQueueName.QueueName, sendingQueueName.QueueName);
         }
         catch (Exception e)
         {

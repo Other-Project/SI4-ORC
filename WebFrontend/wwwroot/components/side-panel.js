@@ -56,7 +56,7 @@ export class SidePanel extends HTMLElement {
 
         document.addEventListener("instructionAdded", ev => this.addInstructions(ev.detail));
         document.addEventListener("instructionsReset", () => this.resetInstructions());
-        setInterval(() => this.#nextInstruction(), 3000);
+        setInterval(() => this.#nextInstruction(), 300);
     }
 
     addInstructions(instruction) {
@@ -108,9 +108,13 @@ export class SidePanel extends HTMLElement {
 
     async #nextInstruction() {
         if (!this.instructionsDiv || this.instructions.length === 0) return;
-        if (this.instructions.length - this.compteur++ < 5) {
-            await this.routingService.sendMessage("Hello");
+        if (this.instructions.length === this.compteur) {
+            console.log("Requesting more instructions");
+            await this.routingService.sendMessage("Send me more message");
+            this.compteur++;
         }
+        if (this.compteur > this.instructions.length) return;
+        this.compteur++;
         let active = this.instructionsDiv.querySelector("[active=true]");
         if (!active) return;
         active.setAttribute("active", "false");
