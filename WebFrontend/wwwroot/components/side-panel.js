@@ -96,6 +96,7 @@ export class SidePanel extends HTMLElement {
         });
 
         this.invertBtn.addEventListener("click", () => {
+            if (!this["start"] || !this["end"]) return;
             let tmp = this["start"];
             this["start"] = this["end"];
             this["end"] = tmp;

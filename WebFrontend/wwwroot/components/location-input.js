@@ -60,6 +60,7 @@ export class LocationInput extends HTMLElement {
 
     setLocation(location) {
         this.input.value = location;
+        this.input.setCustomValidity("");
     }
 
     #updateComponents() {
@@ -74,8 +75,12 @@ export class LocationInput extends HTMLElement {
 
     #setupComponents() {
         this.input.addEventListener("focusin", async () => await this.#updateSuggestions(await this.#getNewSuggestions(this.input.value)));
-        this.input.addEventListener("focusout", () => this.#clearSuggestions());
+        this.input.addEventListener("focusout", () => {
+            this.#clearSuggestions();
+            this.input.reportValidity();
+        });
         this.input.addEventListener("keydown", async () => {
+            this.input.setCustomValidity("No suggestion selected");
             if (this.inputTimeout) clearTimeout(this.inputTimeout);
             this.inputTimeout = setTimeout(async () => await this.#updateSuggestions(await this.#getNewSuggestions(this.input.value)), 500);
         });
