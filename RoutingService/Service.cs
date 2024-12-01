@@ -56,6 +56,9 @@ public class Service : IService
                 catch (Exception e)
                 {
                     Console.Error.WriteLine(e);
+                    var message = await session.CreateTextMessageAsync(e.Message);
+                    message.Properties.SetString("tag", "routing_error"); // TODO: Waiting for Alban's changes
+                    await producer.SendAsync(message);
                 }
                 finally
                 {

@@ -5,11 +5,11 @@
         gap: 10px;
         min-height: 75px;
         padding: 15px;
-    }
 
-    /*noinspection CssUnusedSymbol*/
-    .instruction.active {
-        background: #0001;
+        /*noinspection CssUnusedSymbol*/
+        &.active {
+            background-color: var(--active-instruction);
+        }
     }
 
     .instruction-icon {
@@ -33,6 +33,12 @@
         grid-row: 3;
         width: 25px;
         height: 25px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        img {
+            filter: invert();
+        }
     }
 </style>
 
