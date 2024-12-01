@@ -17,6 +17,10 @@ input {
     border: 1px solid var(--secondary-fg);
     border-radius: 5px;
     width: calc(100% - 12px);
+
+    &:not(:focus):invalid {
+        border: 1px solid red;
+    }
 }
 
 .input-container {

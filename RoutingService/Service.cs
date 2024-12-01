@@ -81,19 +81,22 @@ public class Service : IService
         }
     }
 
+    private static bool StationHasBikes(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Bikes: > 0 };
+    private static bool StationHasStands(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Stands: > 0 };
+
     private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
         ISession session, int index)
     {
         var proxyCacheClient = new ProxyCacheServiceClient();
 
-        var startStation = (await proxyCacheClient.GetStationsAsync()).MinBy(s => start.GetDistanceTo(s.Position));
+        var startStation = (await proxyCacheClient.GetStationsAsync())?.Where(StationHasBikes).MinBy(s => start.GetDistanceTo(s.Position));
         if (startStation is null) return;
         var endStationList = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?
             .OrderBy(s =>
                 end.GetDistanceTo(s.Position)).ToList();
         var endStation = endStationList?[index];
 
-        //(await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.MinBy(s =>end.GetDistanceTo(s.Position));
+        //(await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.Where(StationHasStands).MinBy(s =>end.GetDistanceTo(s.Position));
         if (endStation is null) return;
 
         var straightDistance = start.GetDistanceTo(end);
