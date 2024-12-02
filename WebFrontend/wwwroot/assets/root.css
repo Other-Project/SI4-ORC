@@ -10,6 +10,9 @@
 
 body {
     margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 side-panel {
@@ -17,13 +20,26 @@ side-panel {
     left: 10px;
     top: 10px;
     z-index: 2;
+    width: 400px;
     max-height: calc(100% - 20px);
     display: flex;
 }
 
 leaflet-map {
-    height: 100vh;
+    height: 100%;
     display: block;
     position: relative;
     z-index: 1;
+}
+
+@media screen and (max-width: 800px) {
+    side-panel {
+        width: 100vw;
+        max-height: 50vh;
+        position: unset;
+    }
+
+    app-popup {
+        display: none; /* TODO */
+    }
 }
