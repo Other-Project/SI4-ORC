@@ -18,12 +18,16 @@ export class ActiveMQ {
                 this.client.subscribe(destination, (message) => {
                     const parsedMessage = JSON.parse(message.body);
                     const tag = message.headers["tag"];
-                    if (tag) {
-                        console.log("Received message with tag : ", tag);
-                        document.dispatchEvent(new CustomEvent("popupMessage", {detail: parsedMessage}));
-                        return;
+                    if (tag === "instruction") {
+                        document.dispatchEvent(new CustomEvent("instructionAdded", {detail: parsedMessage}));
+                    } else {
+                        document.dispatchEvent(new CustomEvent("popupMessage", {
+                            detail: {
+                                message: parsedMessage,
+                                value: tag
+                            }
+                        }));
                     }
-                    document.dispatchEvent(new CustomEvent("instructionAdded", {detail: parsedMessage}));
                 });
             });
         }
@@ -31,7 +35,6 @@ export class ActiveMQ {
 
     async sendTo(destination, message) {
         if (window.WebSocket) {
-            console.log("sending message : ", message);
             this.client.send(destination, {}, JSON.stringify(message));
         }
     }

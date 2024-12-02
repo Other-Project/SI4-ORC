@@ -110,12 +110,11 @@ export class SidePanel extends HTMLElement {
 
     async #nextInstruction() {
         if (!this.instructionsDiv || this.instructions.length === 0) return;
-        if (this.instructions.length === this.compteur) {
-            console.log("Requesting more instructions");
+        if (this.instructions.length-1 === this.compteur) {
             await this.routingService.sendMessage("Send me more message");
-            this.compteur++;
+            return;
         }
-        if (this.compteur > this.instructions.length) return;
+        if (this.compteur+1 === this.instructions.length) return;
         this.compteur++;
         let active = this.instructionsDiv.querySelector("[active=true]");
         if (!active) return;

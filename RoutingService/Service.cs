@@ -15,18 +15,25 @@ public class Service : IService
 
     private static bool _shouldWait = true;
 
-    private static Random _random = new Random();
+    private static readonly Random Random = new Random();
 
-    private static string[] _tags =
+    private static readonly string[] Tags =
     [
-        "De la pluie est prévue ", "Accident ", "Travaux ", "Bouchon", "Attention, vous allez trop vite !", "Probleme"
+        "Pluie est prévue sur votre trajet ", "Accident dans 200m, veuillez faire attention",
+        "Travaux avenue rue de la savoie\nDéviation route des champs", "Bouchons sur votre trajet",
+        "Attention, vous allez trop vite !", "Station d'arrivée pleine, le trajet a été recalculé"
     ];
+
+    private static readonly ProxyCacheServiceClient ProxyCacheClient = new();
+
+    private static bool _hasAlreadyProblem;
 
     public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat,
         double endLon, double endLat, int index)
     {
         try
         {
+            _hasAlreadyProblem = false;
             var connectionFactory = new ConnectionFactory(ActiveMqUri);
             var connection = await connectionFactory.CreateConnectionAsync();
             await connection.StartAsync();
@@ -51,7 +58,10 @@ public class Service : IService
                 {
                     var start = new GeoCoordinate(startLat, startLon);
                     var end = new GeoCoordinate(endLat, endLon);
-                    await CalculateRoute(start, end, producer, session, index);
+                    var startStation = await GetClosestStation(start, 0);
+                    var endStation = await GetClosestStation(end, 0);
+                    if (startStation is null || endStation is null) return;
+                    await CalculateRoute(start, end, startStation, endStation, producer, session, Vehicle.FootWalking);
                 }
                 catch (Exception e)
                 {
@@ -81,41 +91,40 @@ public class Service : IService
         }
     }
 
-    private static bool StationHasBikes(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Bikes: > 0 };
-    private static bool StationHasStands(Station station) => station is { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Stands: > 0 };
+    private static bool StationHasBikes(Station station) => station is
+        { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Bikes: > 0 };
 
-    private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, IMessageProducer producer,
-        ISession session, int index)
+    private static bool StationHasStands(Station station) => station is
+        { Status: Station.StationStatus.OPEN, TotalStands.Availabilities.Stands: > 0 };
+
+    private static async Task<Station?> GetClosestStation(GeoCoordinate pos, int index)
     {
-        var proxyCacheClient = new ProxyCacheServiceClient();
+        return (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasBikes)
+            .OrderBy(s => pos.GetDistanceTo(s.Position))
+            .ElementAt(index);
+    }
 
-        var startStation = (await proxyCacheClient.GetStationsAsync())?.Where(StationHasBikes).MinBy(s => start.GetDistanceTo(s.Position));
-        if (startStation is null) return;
-        var endStationList = (await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?
-            .OrderBy(s =>
-                end.GetDistanceTo(s.Position)).ToList();
-        var endStation = endStationList?[index];
-
-        //(await proxyCacheClient.GetStationsOfContractAsync(startStation.ContractName))?.Where(StationHasStands).MinBy(s =>end.GetDistanceTo(s.Position));
-        if (endStation is null) return;
-
+    private static async Task CalculateRoute(GeoCoordinate start, GeoCoordinate end, Station startStation,
+        Station endStation, IMessageProducer producer,
+        ISession session, Vehicle vehicle)
+    {
         var straightDistance = start.GetDistanceTo(end);
         var walkedDistance = start.GetDistanceTo(startStation.Position) + end.GetDistanceTo(endStation.Position);
 
         IEnumerable<RouteSegment> route;
-        if (walkedDistance > MaxWalkedDistance)
-            route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.DrivingCar);
+        if ((walkedDistance > MaxWalkedDistance && !_hasAlreadyProblem) || vehicle == Vehicle.DrivingCar)
+            route = await ProxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.DrivingCar);
         else if (straightDistance <= walkedDistance)
-            route = await proxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.FootWalking);
-        else
-            route = (await proxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position,
+            route = await ProxyCacheClient.GetRouteAsync(start.ToPosition(), end.ToPosition(), Vehicle.FootWalking);
+        else if (vehicle == Vehicle.FootWalking)
+            route = (await ProxyCacheClient.GetRouteAsync(start.ToPosition(), startStation.Position,
                     Vehicle.FootWalking))
                 .Append(new RouteSegment
                 {
                     InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle,
                     Vehicle = Vehicle.FootWalking, Points = []
                 })
-                .Concat(await proxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position,
+                .Concat(await ProxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position,
                     Vehicle.CyclingRegular))
                 .Append(new RouteSegment
                 {
@@ -123,8 +132,17 @@ public class Service : IService
                     Vehicle = Vehicle.CyclingRegular, Points = []
                 })
                 .Concat(
-                    await proxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
-
+                    await ProxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
+        else
+            route = (await ProxyCacheClient.GetRouteAsync(start.ToPosition(), endStation.Position,
+                    Vehicle.CyclingRegular))
+                .Append(new RouteSegment
+                {
+                    InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    Vehicle = Vehicle.CyclingRegular, Points = []
+                })
+                .Concat(
+                    await ProxyCacheClient.GetRouteAsync(endStation.Position, end.ToPosition(), Vehicle.FootWalking));
         await AddRouteSegments(route, producer, session);
     }
 
@@ -134,27 +152,53 @@ public class Service : IService
         var compt = 1;
         foreach (var segment in routeSegments)
         {
-            await producer.SendAsync(await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment)));
+            var message = await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment));
+            message.Properties.SetString("tag", "instruction");
+            await producer.SendAsync(message);
             if (compt++ % 10 != 0) continue;
             while (_shouldWait)
             {
                 await Task.Delay(500);
             }
 
-            await TrySendPopUp(producer, session);
+            var problem = await TrySendPopUp(producer, session);
+            if (problem && !_hasAlreadyProblem)
+            {
+                _hasAlreadyProblem = true;
+                var lastSegment = routeSegments.Last();
+                await RecalculateRoute(segment, lastSegment, producer, session);
+                return;
+            }
+
             _shouldWait = true;
         }
     }
 
-    private static async Task TrySendPopUp(IMessageProducer producer, ISession session)
+    private static async Task<bool> TrySendPopUp(IMessageProducer producer, ISession session)
     {
-        if (_random.Next(0, 2) == 0)
+        if (Random.Next(0, 5) == 0)
         {
-            var value = _random.Next(0, _tags.Length);
-            var messagePopUp = _tags[value]; // + (value <= 3 ? segment.RoadName : "");
+            var value = Random.Next(0, Tags.Length);// To have the other problem
+            var messagePopUp = Tags[value];
             var message = await session.CreateTextMessageAsync(JsonSerializer.Serialize(messagePopUp));
-            message.Properties.SetString("tag", "popup");
+            message.Properties.SetString("tag", value.ToString());
             await producer.SendAsync(message);
+            if (value == 5)
+            {
+                return true;
+            }
         }
+        return false;
+    }
+
+    private static async Task RecalculateRoute(RouteSegment currentSegment, RouteSegment lastSegment,
+        IMessageProducer producer, ISession session)
+    {
+        var start = new GeoCoordinate(currentSegment.Points.First().Latitude, currentSegment.Points.First().Longitude);
+        var end = new GeoCoordinate(lastSegment.Points.Last().Latitude, lastSegment.Points.Last().Longitude);
+        var startStation = await GetClosestStation(start, 0);
+        var endStation = await GetClosestStation(end, 1);
+        if (startStation is null || endStation is null) return;
+        await CalculateRoute(start, end, startStation, endStation, producer, session, currentSegment.Vehicle);
     }
 }
