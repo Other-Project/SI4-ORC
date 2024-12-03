@@ -20,13 +20,13 @@ export class ActiveMQ {
                     const tag = message.headers["tag"];
                     if (tag === "instruction") {
                         document.dispatchEvent(new CustomEvent("instructionAdded", {detail: parsedMessage}));
-                    } else {
-                        document.dispatchEvent(new CustomEvent("popupMessage", {
-                            detail: {
-                                message: parsedMessage,
-                                value: tag
-                            }
-                        }));
+                    } else if (tag === "distance") {
+                        document.dispatchEvent(new CustomEvent("distanceAdded", {detail: parsedMessage}));
+                    } else if (tag === "duration") {
+                        document.dispatchEvent(new CustomEvent("durationAdded", {detail: parsedMessage}));
+                    }
+                    else {
+                        document.dispatchEvent(new CustomEvent("popupMessage", {detail: parsedMessage}));
                     }
                 });
             });

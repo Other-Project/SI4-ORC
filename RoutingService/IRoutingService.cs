@@ -8,10 +8,10 @@ namespace RoutingService;
 public interface IRoutingService
 {
     [OperationContract]
-    [WebInvoke(UriTemplate = "route?startLon={startLon}&startLat={startLat}&endLon={endLon}&endLat={endLat}&index={index}",
+    [WebInvoke(UriTemplate = "route?startLon={startLon}&startLat={startLat}&endLon={endLon}&endLat={endLat}",
         Method = "GET",
         BodyStyle = WebMessageBodyStyle.Wrapped,
         RequestFormat = WebMessageFormat.Json,
         ResponseFormat = WebMessageFormat.Json)]
-    Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat, double endLon, double endLat, int index);
+    Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
 }
