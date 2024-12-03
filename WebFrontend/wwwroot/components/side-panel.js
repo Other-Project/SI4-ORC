@@ -69,7 +69,6 @@ export class SidePanel extends HTMLElement {
 
                 let durationParsed = parseInt(ev.detail.duration);
                 this.duration += durationParsed;
-                console.log(this.duration);
                 if (durationParsed > 0) this.durationHtml.innerHTML = (this.formatFromSecond(this.duration));
                 this.info.style.display = "block";
             }
