@@ -124,5 +124,6 @@ export class SidePanel extends HTMLElement {
             top: newActive.offsetTop - active.getBoundingClientRect().height, // so that the precedent instruction stays visible
             behavior: "smooth"
         });
+        document.dispatchEvent(new CustomEvent("highlightSegment", {detail: {index: this.compteur}}));
     }
 }
