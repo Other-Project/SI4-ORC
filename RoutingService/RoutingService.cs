@@ -139,19 +139,25 @@ public class RoutingService : IRoutingService
     private async Task AddRouteSegments(IEnumerable<RouteSegment> routeSegments, IMessageProducer producer,
         ISession session)
     {
-        var compt = 1;
+        var totalDistance = Math.Round(routeSegments.Sum(s => s.Distance));
+        var totalDuration = Math.Round(routeSegments.Sum(s => s.Duration));
+        await AddDistanceAndDuration(producer, session,totalDistance, totalDuration);
+        var compt = 0;
         foreach (var segment in routeSegments)
         {
             var message = await session.CreateTextMessageAsync(JsonSerializer.Serialize(segment));
             message.Properties.SetString("tag", "instruction");
             await producer.SendAsync(message);
-            if (compt++ % 10 != 0) continue;
+            if (compt++ % 10 != 0 || compt < 20) continue;
             while (_shouldWait) await Task.Delay(500);
 
             var problem = await TrySendPopUp(producer, session);
             if (problem && !_hasAlreadyProblem)
             {
                 _hasAlreadyProblem = true;
+                var distanceLeft = routeSegments.Skip(compt).Sum(s => s.Distance);
+                var durationLeft = routeSegments.Skip(compt).Sum(s => s.Duration);
+                await AddDistanceAndDuration(producer, session, -distanceLeft, -durationLeft);
                 var lastSegment = routeSegments.Last();
                 await RecalculateRoute(segment, lastSegment, producer, session);
                 break;
@@ -183,5 +189,12 @@ public class RoutingService : IRoutingService
         var endStation = (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasStands).OrderBy(s => end.GetDistanceTo(s.Position)).ElementAt(1);
         if (startStation is null || endStation is null) return;
         await CalculateRoute(start, end, startStation, endStation, producer, session, currentSegment.Vehicle);
+    }
+    
+    private static async Task AddDistanceAndDuration(IMessageProducer producer, ISession session, double distance, double duration)
+    {
+        var messageDistance = await session.CreateTextMessageAsync(JsonSerializer.Serialize(new {distance, duration}));
+        messageDistance.Properties.SetString("tag", "infos");
+        await producer.SendAsync(messageDistance);
     }
 }

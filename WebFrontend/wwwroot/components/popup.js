@@ -14,7 +14,7 @@ export class Popup extends HTMLElement {
                 context.popup = shadow.getElementById("app-popup");
             });
 
-        document.addEventListener("popupMessage", ev => this.changePopupMessage(ev.detail.message));
+        document.addEventListener("popupMessage", ev => this.changePopupMessage(ev.detail));
         document.addEventListener("hidePopup", () => this.hidePopup());
     }
 

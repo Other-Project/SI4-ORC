@@ -33,6 +33,8 @@ export class SidePanel extends HTMLElement {
 
     instructions = [];
     compteur = 0;
+    distance = 0;
+    duration = 0;
 
     constructor() {
         super();
@@ -46,6 +48,9 @@ export class SidePanel extends HTMLElement {
                 this.sendBtn = shadow.getElementById("sendBtn");
                 this.invertBtn = shadow.getElementById("invertBtn");
                 this.instructionsDiv = shadow.getElementById("instructions");
+                this.distanceHtml = shadow.getElementById("distance");
+                this.durationHtml = shadow.getElementById("duration");
+                this.info = shadow.getElementById("info");
                 this.#setupComponents();
             });
 
@@ -56,6 +61,19 @@ export class SidePanel extends HTMLElement {
 
         document.addEventListener("instructionAdded", ev => this.addInstructions(ev.detail));
         document.addEventListener("instructionsReset", () => this.resetInstructions());
+        document.addEventListener("infoAdded", ev => {
+                let distanceParsed = parseInt(ev.detail.distance);
+                this.distance += distanceParsed;
+                if (distanceParsed > 0) this.distanceHtml.innerHTML = this.formatFromDistance(this.distance);
+                this.info.style.display = "block";
+
+                let durationParsed = parseInt(ev.detail.duration);
+                this.duration += durationParsed;
+                console.log(this.duration);
+                if (durationParsed > 0) this.durationHtml.innerHTML = (this.formatFromSecond(this.duration));
+                this.info.style.display = "block";
+            }
+        );
         setInterval(() => this.#nextInstruction(), 300);
     }
 
@@ -79,6 +97,11 @@ export class SidePanel extends HTMLElement {
         this.instructionsDiv.innerHTML = "";
         this.instructions = [];
         this.compteur = 0;
+        this.distance = 0;
+        this.duration = 0;
+        this.distanceHtml.innerHTML = "";
+        this.durationHtml.innerHTML = "";
+        this.info.style.display = "none";
         document.dispatchEvent(new CustomEvent("resetMap"));
         document.dispatchEvent(new CustomEvent("hidePopup"));
     }
@@ -124,5 +147,20 @@ export class SidePanel extends HTMLElement {
             top: newActive.offsetTop - active.getBoundingClientRect().height, // so that the precedent instruction stays visible
             behavior: "smooth"
         });
+        document.dispatchEvent(new CustomEvent("highlightSegment", {detail: {index: this.compteur}}));
+    }
+
+    formatFromSecond(seconds) {
+        return new Date(seconds * 1000)
+            .toISOString()
+            .slice((seconds >= 3600) ? (11) : (14), 19);
+    }
+
+    formatFromDistance(distance) {
+        if (distance < 1000) {
+            return distance + " m";
+        } else {
+            return (distance / 1000).toFixed(1) + " km" + (distance % 1000 === 0 ? "" : " " + (distance % 1000) + " m");
+        }
     }
 }
