@@ -110,16 +110,15 @@ export class SidePanel extends HTMLElement {
 
     async #nextInstruction() {
         if (!this.instructionsDiv || this.instructions.length === 0) return;
-        if (this.instructions.length-1 === this.compteur) {
-            await this.routingService.sendMessage("Send me more message");
-            return;
-        }
-        if (this.compteur+1 === this.instructions.length) return;
+        if (this.compteur === this.instructions.length - 10)  // Ask for more instructions a bit before having none left
+            await this.routingService.sendMessage("Send me more instructions");
+        if (this.compteur + 1 === this.instructions.length) return;
         this.compteur++;
+
         let active = this.instructionsDiv.querySelector("[active=true]");
-        if (!active) return;
         active.setAttribute("active", "false");
-        let newActive = active.nextElementSibling ?? this.instructionsDiv.firstElementChild;
+
+        let newActive = this.instructionsDiv.children[this.compteur];
         newActive.setAttribute("active", "true");
         this.instructionsDiv.scroll({
             top: newActive.offsetTop - active.getBoundingClientRect().height, // so that the precedent instruction stays visible
