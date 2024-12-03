@@ -8,7 +8,7 @@ public class GenericProxyCache<T>(IObjectGetter<T> ObjectGetter)
 
     public Task<T> GetAsync(string cacheItemName) => GetAsync(cacheItemName, DtDefault);
 
-    public Task<T> GetAsync(string cacheItemName, double dtSeconds) => GetAsync(cacheItemName, new DateTimeOffset(DateTime.Now, TimeSpan.FromSeconds(dtSeconds)));
+    public Task<T> GetAsync(string cacheItemName, double dtSeconds) => GetAsync(cacheItemName, DateTimeOffset.Now.Add(TimeSpan.FromSeconds(dtSeconds)));
 
     public async Task<T> GetAsync(string cacheItemName, DateTimeOffset dt)
     {
