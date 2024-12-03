@@ -37,7 +37,7 @@ public static class ActiveMqHelper
         Consumer = await Session.CreateConsumerAsync(sendingQueue);
         Consumer.Listener += message =>
         {
-            if (message is ITextMessage textMessage) MessageReceived?.Invoke(textMessage);
+            if (message is ITextMessage textMessage && MessageReceived != null) MessageReceived(textMessage);
         };
     }
 

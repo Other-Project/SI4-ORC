@@ -8,9 +8,10 @@ namespace ConsoleClient;
 
 public class MainView : Window
 {
+    private readonly HttpClient client = new();
+
     private TextField DepartureText { get; }
     private TextField ArrivalText { get; }
-    private ListView RouteSteps { get; }
 
     private ObservableCollection<string> RouteSegments { get; } = [];
 
@@ -44,9 +45,11 @@ public class MainView : Window
         };
         btnSearch.Accept += async (_, _) => await Search();
 
-        RouteSteps = new ListView
+        var line = new LineView { Y = Pos.Bottom(btnSearch) + 1, Width = Dim.Fill() };
+
+        var routeSteps = new ListView
         {
-            Y = Pos.Bottom(btnSearch) + 1,
+            Y = Pos.Bottom(line) + 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Source = new ListWrapper<string>(RouteSegments)
@@ -57,31 +60,36 @@ public class MainView : Window
             switch (message.Properties.GetString("tag"))
             {
                 case "routing_error":
-                    MessageBox.ErrorQuery("Erreur", message.Text, "Ok");
+                    MessageBox.ErrorQuery("Erreur", JsonSerializer.Deserialize<string>(message.Text), "Ok");
                     break;
                 case "instruction":
                     RouteSegments.Add(JsonSerializer.Deserialize<RouteSegment>(message.Text)?.InstructionText ?? "ERREUR");
                     _ = ActiveMqHelper.SendMessage("MORE PLEASE");
                     break;
                 default:
-                    //MessageBox.Query("Message", message.Text, "Ok");
+                    //MessageBox.Query("Message", JsonSerializer.Deserialize<string>(message.Text), "Ok");
                     break;
             }
         };
         Closing += async (_, _) => await ActiveMqHelper.DisconnectFromActiveMq();
 
-        Add(departureLabel, DepartureText, arrivalLabel, ArrivalText, btnSearch, RouteSteps); // Add the views to the Window
+        Add(departureLabel, DepartureText, arrivalLabel, ArrivalText, btnSearch, line, routeSteps); // Add the views to the Window
     }
 
     private async Task Search()
     {
         RouteSegments.Clear();
 
+        var (departureAddress, departureLat, departureLon) = await FindAddress(DepartureText.Text);
+        DepartureText.Text = departureAddress;
+        var (arrivalAddress, arrivalLat, arrivalLon) = await FindAddress(ArrivalText.Text);
+        ArrivalText.Text = arrivalAddress;
+
         try
         {
             await ActiveMqHelper.DisconnectFromQueues();
             var routingService = new RoutingServiceClient(RoutingServiceClient.EndpointConfiguration.BasicHttpBinding_IRoutingService);
-            var response = await routingService.CalculateRouteAsync(4.79450, 45.73590, 4.91913, 45.78584);
+            var response = await routingService.CalculateRouteAsync(departureLon, departureLat, arrivalLon, arrivalLat);
             await ActiveMqHelper.ConnectToReceiveQueue(response.Item1);
             await ActiveMqHelper.ConnectToSendQueue(response.Item2);
             await ActiveMqHelper.SendMessage("MORE PLEASE");
@@ -91,5 +99,18 @@ public class MainView : Window
             Console.Error.WriteLine(e);
             MessageBox.ErrorQuery("Erreur", e.Message, "Ok");
         }
+    }
+
+    private async Task<(string matchedAddress, double lat, double lon)> FindAddress(string address)
+    {
+        var response = await client.GetStringAsync(
+            $"https://api.openrouteservice.org/geocode/autocomplete?api_key=5b3ce3597851110001cf624846c93be49c1f44f0949187d18b1d653c&layers=address,neighbourhood,locality,borough&text={address}");
+        var json = JsonDocument.Parse(response).RootElement;
+        var result = json.GetProperty("features")[0];
+        var matchedAddress = result.GetProperty("properties").GetProperty("label").GetString();
+        var coords = result.GetProperty("geometry").GetProperty("coordinates");
+        var lon = coords[0].GetDouble();
+        var lat = coords[1].GetDouble();
+        return (matchedAddress ?? address, lat, lon);
     }
 }
