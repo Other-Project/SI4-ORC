@@ -8,7 +8,11 @@ export class RoutingService {
     }
 
     isLastRoute(start, end) {
-        return this.start === start && this.end === end;
+        if (this.start === start && this.end === end) {
+            alert("You must choose a different route");
+            return true;
+        }
+        return false;
     }
 
     async getRoute(start, end) {
