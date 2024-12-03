@@ -39,6 +39,11 @@ export class LeafletMap extends HTMLDivElement {
     constructor() {
         super();
 
+        this.lineList = [];
+        this.leafCirleList = [];
+        this.segmentList = [];
+        this.segmentWithNoPoints = 0;
+
         const shadow = this.attachShadow({mode: "open"});
 
         let style = document.createElement("link");
@@ -80,6 +85,10 @@ export class LeafletMap extends HTMLDivElement {
             this.end = ev.detail.end;
             await this.#addMarkers();
         });
+
+        document.addEventListener("highlightSegment", async ev => {
+            await this.highlightSegment(ev.detail.index);
+        });
     }
 
     async #addMarkers() {
@@ -94,16 +103,53 @@ export class LeafletMap extends HTMLDivElement {
         if (this.layer) this.map.removeLayer(this.layer);
         this.layer = new L.FeatureGroup();
         this.layer.addTo(this.map);
+        this.lineList = [];
+        this.leafCirleList = [];
+        this.segmentList = [];
+        this.segmentWithNoPoints = 0;
+        delete this.colorLine;
+        delete this.colorCircle;
     }
 
     async #addSegment(segment) {
         let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
-        if (!points || points.length === 0) return;
+        this.segmentList.push(segment);
+        if (!points || points.length === 0){
+            return;
+        }
         let color = typeColor[segment["Vehicle"]];
-        L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer);
-        new LeafCircle(points[0], {
+        this.lineList.push(L.polyline(points, {color: color}).bindPopup(segment["Distance"] + "m").addTo(this.layer));
+        this.leafCirleList.push(new LeafCircle(points[0], {
             color: color,
-            fillColor: color
-        }).bindPopup(segment["InstructionText"]).addTo(this.layer);
+            fillColor: color,
+        }).bindPopup(segment["InstructionText"]).addTo(this.layer));
+    }
+
+    async highlightSegment(index) {
+        if (index < 0 || index >= this.segmentList.length) return;
+        let segment = this.segmentList[index];
+        let points = segment["Points"].map(p => [p["Latitude"], p["Longitude"]]);
+        if (!points || points.length === 0) {
+            this.segmentWithNoPoints++;
+            return;
+        }
+        index = index-this.segmentWithNoPoints;
+        if (this.colorLine) this.lineList[index - 1].setStyle({color: this.colorLine});
+        let currentLine = this.lineList[index];
+        this.colorLine = currentLine.options.color;
+        currentLine.setStyle({
+            color: "#ffff00",
+        })
+
+        if (this.colorCircle) this.leafCirleList[index - 1].setStyle({
+            color: this.colorCircle,
+            fillColor: this.colorCircle
+        });
+        let currentLeafCircle = this.leafCirleList[index];
+        this.colorCircle = currentLeafCircle.options.color;
+        currentLeafCircle.setStyle({
+            color: "#ffff00",
+            fillColor: "#ffff00"
+        })
     }
 }
