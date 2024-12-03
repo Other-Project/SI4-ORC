@@ -38,10 +38,7 @@ public class MainView : Window
         {
             Text = "Valider",
             Y = Pos.Bottom(arrivalLabel) + 1,
-
-            // center the login button horizontally
-            X = Pos.Center(),
-            Width = Dim.Fill()
+            X = Pos.Center()
         };
         btnSearch.Accept += async (_, _) => await Search();
 
@@ -49,7 +46,7 @@ public class MainView : Window
 
         var routeSteps = new ListView
         {
-            Y = Pos.Bottom(line) + 1,
+            Y = Pos.Bottom(line),
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Source = new ListWrapper<string>(RouteSegments)
