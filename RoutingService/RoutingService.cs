@@ -28,7 +28,7 @@ public class RoutingService : IRoutingService
 
     private bool _hasAlreadyProblem;
 
-    public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
+    public async Task<(string receiveQueue, string sendQueue)> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
     {
         try
         {
@@ -86,7 +86,7 @@ public class RoutingService : IRoutingService
         catch (Exception e)
         {
             Console.Error.WriteLine(e);
-            return null;
+            return (null!, null!);
         }
     }
 
@@ -111,14 +111,14 @@ public class RoutingService : IRoutingService
                     Vehicle.FootWalking))
                 .Append(new RouteSegment
                 {
-                    InstructionText = "Prenez un vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    InstructionText = "Prenez un vélo", InstructionType = InstructionType.ChangeVehicle,
                     Vehicle = Vehicle.FootWalking, Points = []
                 })
                 .Concat(await ProxyCacheClient.GetRouteAsync(startStation.Position, endStation.Position,
                     Vehicle.CyclingRegular))
                 .Append(new RouteSegment
                 {
-                    InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    InstructionText = "Déposez votre vélo", InstructionType = InstructionType.ChangeVehicle,
                     Vehicle = Vehicle.CyclingRegular, Points = []
                 })
                 .Concat(
@@ -128,7 +128,7 @@ public class RoutingService : IRoutingService
                     Vehicle.CyclingRegular))
                 .Append(new RouteSegment
                 {
-                    InstructionText = "Déposez votre vélo", InstructionType = StepInstructionType.ChangeVehicle,
+                    InstructionText = "Déposez votre vélo", InstructionType = InstructionType.ChangeVehicle,
                     Vehicle = Vehicle.CyclingRegular, Points = []
                 })
                 .Concat(
