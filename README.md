@@ -8,14 +8,16 @@
 
 * .NET Runtime 8.0
 * ASP.NET Core Runtime 8.0
+* ActiveMQ
 
 ## How to run
 
 1. Copy the `appsettings.template.json` file that you'll find in `Cache`. Name the copy `appsettings.json` and set the token values. 
 2. Build the solution with `dotnet publish`
-3. Launch the cache service `.\Cache\bin\Release\net8.0\*\publish\Cache.exe`
-4. Launch the routing service `.\RoutingService\bin\Release\net8.0\*\publish\RoutingService.exe`
-5. Launch the web server `.\WebFrontend\bin\Release\net8.0\*\publish\WebFrontend.exe`
+3. Launch ActiveMQ
+4. Launch the cache service `.\Cache\bin\Release\net8.0\*\publish\Cache.exe`
+5. Launch the routing service `.\RoutingService\bin\Release\net8.0\*\publish\RoutingService.exe`
+6. Launch the web server `.\WebFrontend\bin\Release\net8.0\*\publish\WebFrontend.exe`
 
 ## How to use
 
