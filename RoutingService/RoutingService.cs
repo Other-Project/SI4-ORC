@@ -8,7 +8,7 @@ using ISession = Apache.NMS.ISession;
 namespace RoutingService;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class Service : IService
+public class RoutingService : IRoutingService
 {
     public static Uri? ActiveMqUri { get; set; }
     public static double MaxWalkedDistance { get; set; }
@@ -177,8 +177,9 @@ public class Service : IService
     private async Task RecalculateRoute(RouteSegment currentSegment, RouteSegment lastSegment,
         IMessageProducer producer, ISession session)
     {
-        var start = new GeoCoordinate(currentSegment.Points.First().Latitude, currentSegment.Points.First().Longitude);
-        var end = new GeoCoordinate(lastSegment.Points.Last().Latitude, lastSegment.Points.Last().Longitude);
+        if (currentSegment.Points.Length == 0) return;
+        var start = new GeoCoordinate(currentSegment.Points[0].Latitude, currentSegment.Points[0].Longitude);
+        var end = new GeoCoordinate(lastSegment.Points[^1].Latitude, lastSegment.Points[^1].Longitude);
         var startStation = (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasBikes).MinBy(s => start.GetDistanceTo(s.Position));
         var endStation = (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasStands).OrderBy(s => end.GetDistanceTo(s.Position)).ElementAt(1);
         if (startStation is null || endStation is null) return;

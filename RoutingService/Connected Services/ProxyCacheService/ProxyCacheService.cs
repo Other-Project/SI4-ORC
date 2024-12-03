@@ -15,16 +15,16 @@ namespace RoutingService.ProxyCacheService
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Station", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Vehicle))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.RouteSegment[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.RouteSegment))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.StepInstructionType))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Station[]))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Stands))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Availabilities))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Position))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Station.StationStatus))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(RoutingService.ProxyCacheService.Position[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Vehicle))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.RouteSegment[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.RouteSegment))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.StepInstructionType))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Station[]))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Stands))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Availabilities))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Station.StationStatus))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position[]))]
     public partial class Station : object
     {
         
@@ -40,7 +40,7 @@ namespace RoutingService.ProxyCacheService
         
         private string LastUpdateField;
         
-        private RoutingService.ProxyCacheService.Stands MainStandsField;
+        private global::RoutingService.ProxyCacheService.Stands MainStandsField;
         
         private string NameField;
         
@@ -48,15 +48,15 @@ namespace RoutingService.ProxyCacheService
         
         private bool OverflowField;
         
-        private RoutingService.ProxyCacheService.Stands OverflowStandsField;
+        private global::RoutingService.ProxyCacheService.Stands OverflowStandsField;
         
-        private RoutingService.ProxyCacheService.Position PositionField;
+        private global::RoutingService.ProxyCacheService.Position PositionField;
         
         private object ShapeField;
         
-        private RoutingService.ProxyCacheService.Station.StationStatus StatusField;
+        private global::RoutingService.ProxyCacheService.Station.StationStatus StatusField;
         
-        private RoutingService.ProxyCacheService.Stands TotalStandsField;
+        private global::RoutingService.ProxyCacheService.Stands TotalStandsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Address
@@ -137,7 +137,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Stands MainStands
+        public global::RoutingService.ProxyCacheService.Stands MainStands
         {
             get
             {
@@ -189,7 +189,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Stands OverflowStands
+        public global::RoutingService.ProxyCacheService.Stands OverflowStands
         {
             get
             {
@@ -202,7 +202,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Position Position
+        public global::RoutingService.ProxyCacheService.Position Position
         {
             get
             {
@@ -228,7 +228,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Station.StationStatus Status
+        public global::RoutingService.ProxyCacheService.Station.StationStatus Status
         {
             get
             {
@@ -241,7 +241,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Stands TotalStands
+        public global::RoutingService.ProxyCacheService.Stands TotalStands
         {
             get
             {
@@ -272,12 +272,12 @@ namespace RoutingService.ProxyCacheService
     public partial class Stands : object
     {
         
-        private RoutingService.ProxyCacheService.Availabilities AvailabilitiesField;
+        private global::RoutingService.ProxyCacheService.Availabilities AvailabilitiesField;
         
         private int CapacityField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Availabilities Availabilities
+        public global::RoutingService.ProxyCacheService.Availabilities Availabilities
         {
             get
             {
@@ -385,13 +385,13 @@ namespace RoutingService.ProxyCacheService
         
         private string InstructionTextField;
         
-        private RoutingService.ProxyCacheService.StepInstructionType InstructionTypeField;
+        private global::RoutingService.ProxyCacheService.StepInstructionType InstructionTypeField;
         
-        private RoutingService.ProxyCacheService.Position[] PointsField;
+        private global::RoutingService.ProxyCacheService.Position[] PointsField;
         
         private string RoadNameField;
         
-        private RoutingService.ProxyCacheService.Vehicle VehicleField;
+        private global::RoutingService.ProxyCacheService.Vehicle VehicleField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public double Distance
@@ -433,7 +433,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.StepInstructionType InstructionType
+        public global::RoutingService.ProxyCacheService.StepInstructionType InstructionType
         {
             get
             {
@@ -446,7 +446,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Position[] Points
+        public global::RoutingService.ProxyCacheService.Position[] Points
         {
             get
             {
@@ -472,7 +472,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public RoutingService.ProxyCacheService.Vehicle Vehicle
+        public global::RoutingService.ProxyCacheService.Vehicle Vehicle
         {
             get
             {
@@ -639,23 +639,23 @@ namespace RoutingService.ProxyCacheService
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCacheService/GetStations", ReplyAction="http://tempuri.org/IProxyCacheService/GetStationsResponse")]
-        System.Threading.Tasks.Task<RoutingService.ProxyCacheService.Station[]> GetStationsAsync();
+        System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.Station[]> GetStationsAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCacheService/GetStationsOfContract", ReplyAction="http://tempuri.org/IProxyCacheService/GetStationsOfContractResponse")]
-        System.Threading.Tasks.Task<RoutingService.ProxyCacheService.Station[]> GetStationsOfContractAsync(string contractName);
+        System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.Station[]> GetStationsOfContractAsync(string contractName);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCacheService/GetRoute", ReplyAction="http://tempuri.org/IProxyCacheService/GetRouteResponse")]
-        System.Threading.Tasks.Task<RoutingService.ProxyCacheService.RouteSegment[]> GetRouteAsync(RoutingService.ProxyCacheService.Position start, RoutingService.ProxyCacheService.Position end, RoutingService.ProxyCacheService.Vehicle vehicle);
+        System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.RouteSegment[]> GetRouteAsync(global::RoutingService.ProxyCacheService.Position start, global::RoutingService.ProxyCacheService.Position end, global::RoutingService.ProxyCacheService.Vehicle vehicle);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    public interface IProxyCacheServiceChannel : RoutingService.ProxyCacheService.IProxyCacheService, System.ServiceModel.IClientChannel
+    public interface IProxyCacheServiceChannel : global::RoutingService.ProxyCacheService.IProxyCacheService, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    public partial class ProxyCacheServiceClient : System.ServiceModel.ClientBase<RoutingService.ProxyCacheService.IProxyCacheService>, RoutingService.ProxyCacheService.IProxyCacheService
+    public partial class ProxyCacheServiceClient : System.ServiceModel.ClientBase<global::RoutingService.ProxyCacheService.IProxyCacheService>, global::RoutingService.ProxyCacheService.IProxyCacheService
     {
         
         /// <summary>
@@ -698,17 +698,17 @@ namespace RoutingService.ProxyCacheService
         {
         }
         
-        public System.Threading.Tasks.Task<RoutingService.ProxyCacheService.Station[]> GetStationsAsync()
+        public System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.Station[]> GetStationsAsync()
         {
             return base.Channel.GetStationsAsync();
         }
         
-        public System.Threading.Tasks.Task<RoutingService.ProxyCacheService.Station[]> GetStationsOfContractAsync(string contractName)
+        public System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.Station[]> GetStationsOfContractAsync(string contractName)
         {
             return base.Channel.GetStationsOfContractAsync(contractName);
         }
         
-        public System.Threading.Tasks.Task<RoutingService.ProxyCacheService.RouteSegment[]> GetRouteAsync(RoutingService.ProxyCacheService.Position start, RoutingService.ProxyCacheService.Position end, RoutingService.ProxyCacheService.Vehicle vehicle)
+        public System.Threading.Tasks.Task<global::RoutingService.ProxyCacheService.RouteSegment[]> GetRouteAsync(global::RoutingService.ProxyCacheService.Position start, global::RoutingService.ProxyCacheService.Position end, global::RoutingService.ProxyCacheService.Vehicle vehicle)
         {
             return base.Channel.GetRouteAsync(start, end, vehicle);
         }

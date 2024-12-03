@@ -16,17 +16,17 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Apache.NMS.ActiveMQ" Version="2.1.0"/>
-        <PackageReference Include="CoreWCF.Primitives" Version="1.*"/>
-        <PackageReference Include="CoreWCF.Http" Version="1.*"/>
+        <PackageReference Include="CoreWCF.Primitives" Version="1.6.0"/>
+        <PackageReference Include="CoreWCF.Http" Version="1.6.0"/>
         <PackageReference Include="CoreWCF.WebHttp" Version="1.6.0"/>
         <PackageReference Include="GeoCoordinate.NetCore" Version="1.0.0.1"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.*"/>
-        <PackageReference Include="System.ServiceModel.Http" Version="4.10.*"/>
-        <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*"/>
-        <PackageReference Include="System.ServiceModel.Security" Version="4.10.*"/>
-        <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*"/>
+        <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0"/>
+        <PackageReference Include="System.ServiceModel.Http" Version="8.1.0"/>
+        <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.0"/>
+        <PackageReference Include="System.ServiceModel.Security" Version="6.0.0"/>
+        <PackageReference Include="System.ServiceModel.Federation" Version="8.1.0"/>
     </ItemGroup>
     <ItemGroup>
         <_ContentIncludedByDefault Remove="Connected Services\Cache\ConnectedService.json"/>

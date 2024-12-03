@@ -10,16 +10,16 @@ builder.Services.AddServiceModelMetadata();
 builder.Services.AddServiceModelWebServices();
 builder.Services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
 
-Service.MaxWalkedDistance = builder.Configuration.GetValue<double?>("MaxWalkedDistance") ?? 10000;
-Service.ActiveMqUri = Uri.TryCreate(builder.Configuration.GetValue<string>("ActiveMqUri"), UriKind.Absolute, out var uri) ? uri : null;
+RoutingService.RoutingService.MaxWalkedDistance = builder.Configuration.GetValue<double?>("MaxWalkedDistance") ?? 10000;
+RoutingService.RoutingService.ActiveMqUri = Uri.TryCreate(builder.Configuration.GetValue<string>("ActiveMqUri"), UriKind.Absolute, out var uri) ? uri : null;
 
 var app = builder.Build();
 app.UseCors(policyBuilder => policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseServiceModel(serviceBuilder =>
 {
-    serviceBuilder.AddService<Service>();
-    serviceBuilder.AddServiceEndpoint<Service, IService>(new BasicHttpBinding(BasicHttpSecurityMode.None), "/soap");
-    serviceBuilder.AddServiceWebEndpoint<Service, IService>("/web", behavior =>
+    serviceBuilder.AddService<RoutingService.RoutingService>();
+    serviceBuilder.AddServiceEndpoint<RoutingService.RoutingService, IRoutingService>(new BasicHttpBinding(BasicHttpSecurityMode.None), "/soap");
+    serviceBuilder.AddServiceWebEndpoint<RoutingService.RoutingService, IRoutingService>("/web", behavior =>
     {
         behavior.HelpEnabled = true;
         behavior.FaultExceptionEnabled = true;

@@ -1,0 +1,25 @@
+{
+  "providerId": "Microsoft.Tools.ServiceModel.Svcutil",
+  "version": "2.1.0",
+  "ExtendedData": {
+    "inputs": [
+      "http://localhost:5001/soap?wsdl"
+    ],
+    "namespaceMappings": [
+      "*, ConsoleClient.RoutingService"
+    ],
+    "outputFile": "RoutingService.cs",
+    "references": [
+      "ColorHelper, {ColorHelper, 1.8.1}",
+      "System.IO.Abstractions, {System.IO.Abstractions, 21.0.22}",
+      "System.Text.Encodings.Web, {System.Text.Encodings.Web, 8.0.0}",
+      "System.Text.Json, {System.Text.Json, 8.0.4}",
+      "Terminal.Gui, {Terminal.Gui, 2.0.0-v2-develop.2329}",
+      "TestableIO.System.IO.Abstractions, {TestableIO.System.IO.Abstractions, 21.0.22}",
+      "TestableIO.System.IO.Abstractions.Wrappers, {TestableIO.System.IO.Abstractions.Wrappers, 21.0.22}",
+      "Wcwidth, {Wcwidth, 2.0.0}"
+    ],
+    "targetFramework": "net8.0",
+    "typeReuseMode": "All"
+  }
+}

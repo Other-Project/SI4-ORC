@@ -14,9 +14,9 @@
         <Using Include="Microsoft.Extensions.DependencyInjection.Extensions"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="CoreWCF.Primitives" Version="1.*"/>
-        <PackageReference Include="CoreWCF.Http" Version="1.*"/>
-        <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
+        <PackageReference Include="CoreWCF.Primitives" Version="1.6.0"/>
+        <PackageReference Include="CoreWCF.Http" Version="1.6.0"/>
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.22"/>
         <PackageReference Include="PolylineEncoder.Net" Version="1.0.1"/>
     </ItemGroup>
     <ItemGroup>
