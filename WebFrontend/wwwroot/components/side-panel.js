@@ -62,13 +62,12 @@ export class SidePanel extends HTMLElement {
         document.addEventListener("instructionAdded", ev => this.addInstructions(ev.detail));
         document.addEventListener("instructionsReset", () => this.resetInstructions());
         document.addEventListener("infoAdded", ev => {
-                let infoSplit = ev.detail.split("\\");
-                let distanceParsed = parseInt(infoSplit[0]);
+                let distanceParsed = parseInt(ev.detail.distance);
                 this.distance += distanceParsed;
                 if (distanceParsed > 0) this.distanceHtml.innerHTML = this.formatFromDistance(this.distance);
                 this.info.style.display = "block";
 
-                let durationParsed = parseInt(infoSplit[1]);
+                let durationParsed = parseInt(ev.detail.duration);
                 this.duration += durationParsed;
                 console.log(this.duration);
                 if (durationParsed > 0) this.durationHtml.innerHTML = (this.formatFromSecond(this.duration));
