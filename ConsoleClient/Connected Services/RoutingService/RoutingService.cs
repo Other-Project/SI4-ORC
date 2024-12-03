@@ -55,7 +55,7 @@ namespace ConsoleClient.RoutingService
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IRoutingService/CalculateRoute", ReplyAction="http://tempuri.org/IRoutingService/CalculateRouteResponse")]
-        System.Threading.Tasks.Task<System.Nullable<ConsoleClient.RoutingService.ValueTupleOfstringstring>> CalculateRouteAsync(double startLon, double startLat, double endLon, double endLat, int index);
+        System.Threading.Tasks.Task<System.Nullable<ConsoleClient.RoutingService.ValueTupleOfstringstring>> CalculateRouteAsync(double startLon, double startLat, double endLon, double endLat);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
@@ -101,9 +101,9 @@ namespace ConsoleClient.RoutingService
         {
         }
         
-        public System.Threading.Tasks.Task<System.Nullable<ConsoleClient.RoutingService.ValueTupleOfstringstring>> CalculateRouteAsync(double startLon, double startLat, double endLon, double endLat, int index)
+        public System.Threading.Tasks.Task<System.Nullable<ConsoleClient.RoutingService.ValueTupleOfstringstring>> CalculateRouteAsync(double startLon, double startLat, double endLon, double endLat)
         {
-            return base.Channel.CalculateRouteAsync(startLon, startLat, endLon, endLat, index);
+            return base.Channel.CalculateRouteAsync(startLon, startLat, endLon, endLat);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

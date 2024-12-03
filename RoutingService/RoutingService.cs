@@ -28,8 +28,7 @@ public class RoutingService : IRoutingService
 
     private bool _hasAlreadyProblem;
 
-    public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat,
-        double endLon, double endLat, int index)
+    public async Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat, double endLon, double endLat)
     {
         try
         {
