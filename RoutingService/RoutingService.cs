@@ -193,11 +193,8 @@ public class RoutingService : IRoutingService
     
     private static async Task AddDistanceAndDuration(IMessageProducer producer, ISession session, double distance, double duration)
     {
-        var messageDistance = await session.CreateTextMessageAsync(JsonSerializer.Serialize(distance));
-        messageDistance.Properties.SetString("tag", "distance");
+        var messageDistance = await session.CreateTextMessageAsync(JsonSerializer.Serialize(distance+"\\"+duration));
+        messageDistance.Properties.SetString("tag", "infos");
         await producer.SendAsync(messageDistance);
-        var messageDuration = await session.CreateTextMessageAsync(JsonSerializer.Serialize(duration));
-        messageDuration.Properties.SetString("tag", "duration");
-        await producer.SendAsync(messageDuration);
     }
 }

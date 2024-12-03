@@ -61,20 +61,20 @@ export class SidePanel extends HTMLElement {
 
         document.addEventListener("instructionAdded", ev => this.addInstructions(ev.detail));
         document.addEventListener("instructionsReset", () => this.resetInstructions());
-        document.addEventListener("distanceAdded", ev => {
-                let distanceParsed = parseInt(ev.detail);
+        document.addEventListener("infoAdded", ev => {
+                let infoSplit = ev.detail.split("\\");
+                let distanceParsed = parseInt(infoSplit[0]);
                 this.distance += distanceParsed;
                 if (distanceParsed > 0) this.distanceHtml.innerHTML = this.formatFromDistance(this.distance);
                 this.info.style.display = "block";
+
+                let durationParsed = parseInt(infoSplit[1]);
+                this.duration += durationParsed;
+                console.log(this.duration);
+                if (durationParsed > 0) this.durationHtml.innerHTML = (this.formatFromSecond(this.duration));
+                this.info.style.display = "block";
             }
         );
-        document.addEventListener("durationAdded", ev => {
-            let durationParsed = parseInt(ev.detail);
-            this.duration += durationParsed;
-            console.log(this.duration);
-            if (durationParsed > 0) this.durationHtml.innerHTML = (this.formatFromSecond(this.duration));
-            this.info.style.display = "block";
-        });
         setInterval(() => this.#nextInstruction(), 300);
     }
 
