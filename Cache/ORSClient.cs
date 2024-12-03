@@ -15,7 +15,7 @@ public class OrsClient : IObjectGetter<List<RouteSegment>>
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { IncludeFields = true };
 
     public static async Task<List<RouteSegment>> GetRoute(Position start, Position end, Vehicle vehicle = Vehicle.CyclingRegular)
-        => await RouteSegmentCache.GetAsync(JsonSerializer.Serialize((start, end, vehicle), JsonSerializerOptions));
+        => await RouteSegmentCache.GetAsync(JsonSerializer.Serialize((start, end, vehicle), JsonSerializerOptions), 60 * 60 * 24); // stays 1d in cache
 
     public async Task<List<RouteSegment>> GetObjectAsync(HttpClient client, string itemName)
     {
