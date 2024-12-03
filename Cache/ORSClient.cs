@@ -1,8 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using Cache.JCDecaux;
-using Cache.OpenRouteService;
 using Microsoft.OpenApi.Extensions;
+using ORC.Models;
 using PolylineEncoder.Net.Utility.Decoders;
 
 namespace Cache;

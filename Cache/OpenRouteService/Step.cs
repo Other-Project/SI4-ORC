@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
+using Cache.OpenRouteService;
 
-namespace Cache.OpenRouteService;
+namespace ORC.Models;
 
 public class Step
 {
@@ -10,24 +11,4 @@ public class Step
     [JsonPropertyName("instruction")] public string Instruction { get; set; } = string.Empty;
     [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
     [JsonPropertyName("way_points")] public int[] Waypoints { get; set; } = new int[2];
-
-    public enum InstructionType
-    {
-        Left = 0,
-        Right = 1,
-        SharpLeft = 2,
-        SharpRight = 3,
-        SlightLeft = 4,
-        SlightRight = 5,
-        Straight = 6,
-        EnterRoundabout = 7,
-        ExitRoundabout = 8,
-        UTurn = 9,
-        Goal = 10,
-        Depart = 11,
-        KeepLeft = 12,
-        KeepRight = 13,
-
-        ChangeVehicle = 14 // Special
-    }
 }
