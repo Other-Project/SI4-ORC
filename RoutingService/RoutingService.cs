@@ -167,7 +167,7 @@ public class RoutingService : IRoutingService
         var startStation = (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasBikes).MinBy(s => start.GetDistanceTo(s.Position));
         var endStation = (await ProxyCacheClient.GetStationsAsync())?.Where(StationHasStands).OrderBy(s => end.GetDistanceTo(s.Position)).ElementAt(1);
         if (startStation is null || endStation is null) return;
-        await SendPopUp(producer, session, $"La station de destination n'as plus d'emplacement de rangement, déviation vers la station la plus proche:\n{endStation.Name}");
+        await SendPopUp(producer, session, $"La station de destination n'a plus d'emplacement de rangement, déviation vers la station la plus proche:\n{endStation.Name}");
         await CalculateRoute(start, end, startStation, endStation, producer, session, currentSegment.Vehicle);
     }
 
