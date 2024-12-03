@@ -15,16 +15,16 @@ namespace RoutingService.ProxyCacheService
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Station", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.InstructionType))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Vehicle))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.RouteSegment[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.RouteSegment))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.StepInstructionType))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Station[]))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Stands))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Availabilities))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Station.StationStatus))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(global::RoutingService.ProxyCacheService.Position[]))]
     public partial class Station : object
     {
         
@@ -305,7 +305,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Position", Namespace="http://schemas.datacontract.org/2004/07/Cache.JCDecaux")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Position", Namespace="http://schemas.datacontract.org/2004/07/ORC.Models")]
     public partial class Position : object
     {
         
@@ -341,7 +341,58 @@ namespace RoutingService.ProxyCacheService
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Vehicle", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InstructionType", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
+    public enum InstructionType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Left = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Right = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SharpLeft = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SharpRight = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SlightLeft = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SlightRight = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Straight = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        EnterRoundabout = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ExitRoundabout = 8,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        UTurn = 9,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Goal = 10,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Depart = 11,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        KeepLeft = 12,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        KeepRight = 13,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChangeVehicle = 14,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Vehicle", Namespace="http://schemas.datacontract.org/2004/07/ORC.Models")]
     public enum Vehicle : int
     {
         
@@ -375,7 +426,7 @@ namespace RoutingService.ProxyCacheService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="RouteSegment", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RouteSegment", Namespace="http://schemas.datacontract.org/2004/07/ORC.Models")]
     public partial class RouteSegment : object
     {
         
@@ -385,7 +436,7 @@ namespace RoutingService.ProxyCacheService
         
         private string InstructionTextField;
         
-        private global::RoutingService.ProxyCacheService.StepInstructionType InstructionTypeField;
+        private global::RoutingService.ProxyCacheService.InstructionType InstructionTypeField;
         
         private global::RoutingService.ProxyCacheService.Position[] PointsField;
         
@@ -433,7 +484,7 @@ namespace RoutingService.ProxyCacheService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public global::RoutingService.ProxyCacheService.StepInstructionType InstructionType
+        public global::RoutingService.ProxyCacheService.InstructionType InstructionType
         {
             get
             {
@@ -483,57 +534,6 @@ namespace RoutingService.ProxyCacheService
                 this.VehicleField = value;
             }
         }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Step.InstructionType", Namespace="http://schemas.datacontract.org/2004/07/Cache.OpenRouteService")]
-    public enum StepInstructionType : int
-    {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Left = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Right = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SharpLeft = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SharpRight = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SlightLeft = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SlightRight = 5,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Straight = 6,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        EnterRoundabout = 7,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ExitRoundabout = 8,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        UTurn = 9,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Goal = 10,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Depart = 11,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        KeepLeft = 12,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        KeepRight = 13,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ChangeVehicle = 14,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -634,7 +634,7 @@ namespace RoutingService.ProxyCacheService
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="RoutingService.ProxyCacheService.IProxyCacheService")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="global::RoutingService.ProxyCacheService.IProxyCacheService")]
     public interface IProxyCacheService
     {
         

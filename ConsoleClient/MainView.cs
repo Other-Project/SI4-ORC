@@ -1,3 +1,7 @@
+using System.Collections.ObjectModel;
+using System.Text.Json;
+using ConsoleClient.RoutingService;
+using ORC.Models;
 using Terminal.Gui;
 
 namespace ConsoleClient;
@@ -6,7 +10,9 @@ public class MainView : Window
 {
     private TextField DepartureText { get; }
     private TextField ArrivalText { get; }
-    private ScrollBarView RouteSteps { get; }
+    private ListView RouteSteps { get; }
+
+    private ObservableCollection<string> RouteSegments { get; } = [];
 
     public MainView()
     {
@@ -34,28 +40,56 @@ public class MainView : Window
 
             // center the login button horizontally
             X = Pos.Center(),
-            Width = Dim.Fill(),
+            Width = Dim.Fill()
         };
-        btnSearch.Accept += (s, e) => Search();
+        btnSearch.Accept += async (_, _) => await Search();
 
-        RouteSteps = new ScrollBarView
+        RouteSteps = new ListView
         {
             Y = Pos.Bottom(btnSearch) + 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(),
+            Source = new ListWrapper<string>(RouteSegments)
         };
+
+        ActiveMqHelper.MessageReceived += message =>
+        {
+            switch (message.Properties.GetString("tag"))
+            {
+                case "routing_error":
+                    MessageBox.ErrorQuery("Erreur", message.Text, "Ok");
+                    break;
+                case "instruction":
+                    RouteSegments.Add(JsonSerializer.Deserialize<RouteSegment>(message.Text)?.InstructionText ?? "ERREUR");
+                    _ = ActiveMqHelper.SendMessage("MORE PLEASE");
+                    break;
+                default:
+                    //MessageBox.Query("Message", message.Text, "Ok");
+                    break;
+            }
+        };
+        Closing += async (_, _) => await ActiveMqHelper.DisconnectFromActiveMq();
 
         Add(departureLabel, DepartureText, arrivalLabel, ArrivalText, btnSearch, RouteSteps); // Add the views to the Window
     }
 
-    private void Search()
+    private async Task Search()
     {
-        RouteSteps.Clear();
+        RouteSegments.Clear();
 
-        var success = false;
-        if (!success)
+        try
         {
-            MessageBox.ErrorQuery("Erreur", "Aucun itinéraire n'a été trouvé", "Ok");
+            await ActiveMqHelper.DisconnectFromQueues();
+            var routingService = new RoutingServiceClient(RoutingServiceClient.EndpointConfiguration.BasicHttpBinding_IRoutingService);
+            var response = await routingService.CalculateRouteAsync(4.79450, 45.73590, 4.91913, 45.78584);
+            await ActiveMqHelper.ConnectToReceiveQueue(response.Item1);
+            await ActiveMqHelper.ConnectToSendQueue(response.Item2);
+            await ActiveMqHelper.SendMessage("MORE PLEASE");
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e);
+            MessageBox.ErrorQuery("Erreur", e.Message, "Ok");
         }
     }
 }

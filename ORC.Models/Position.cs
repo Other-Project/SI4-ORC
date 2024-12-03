@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Cache.JCDecaux;
+namespace ORC.Models;
 
 public class Position
 {

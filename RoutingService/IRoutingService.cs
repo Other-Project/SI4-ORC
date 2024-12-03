@@ -13,5 +13,5 @@ public interface IRoutingService
         BodyStyle = WebMessageBodyStyle.Wrapped,
         RequestFormat = WebMessageFormat.Json,
         ResponseFormat = WebMessageFormat.Json)]
-    Task<(string sendQueue, string receiveQueue)?> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
+    Task<(string receiveQueue, string sendQueue)> CalculateRoute(double startLon, double startLat, double endLon, double endLat);
 }

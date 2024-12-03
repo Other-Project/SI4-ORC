@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using ORC.Models;
 
 namespace Cache.JCDecaux;
 

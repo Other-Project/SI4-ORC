@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cache", "Cache\Cache.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleClient", "ConsoleClient\ConsoleClient.csproj", "{353DC4F6-BEB1-4AEE-976E-A5AD116227C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORC.Models", "ORC.Models\ORC.Models.csproj", "{0AF5B350-F81C-45B8-875A-72C291502695}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{353DC4F6-BEB1-4AEE-976E-A5AD116227C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{353DC4F6-BEB1-4AEE-976E-A5AD116227C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{353DC4F6-BEB1-4AEE-976E-A5AD116227C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF5B350-F81C-45B8-875A-72C291502695}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AF5B350-F81C-45B8-875A-72C291502695}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AF5B350-F81C-45B8-875A-72C291502695}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AF5B350-F81C-45B8-875A-72C291502695}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
